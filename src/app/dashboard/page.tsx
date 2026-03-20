@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface Stats {
     totalEvaluations: number;
@@ -26,7 +27,21 @@ export default function DashboardPage() {
 
     async function fetchStats() {
         try {
-            const res = await fetch('/api/v1/stats');
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            const res = await fetch('/api/v1/stats', {
+                headers: {
+                    'Authorization': `Bearer ${session?.access_token || ''}`
+                }
+            });
+            
+            if (!res.ok) {
+                if (res.status === 401) {
+                    window.location.href = '/login';
+                    return;
+                }
+                throw new Error(`Failed to fetch stats: ${res.statusText}`);
+            }
             const data = await res.json();
             setStats(data);
         } catch (error) {

@@ -96,6 +96,7 @@ CREATE TABLE IF NOT EXISTS ts_payment_fingerprints (
 -- API keys for clients
 CREATE TABLE IF NOT EXISTS ts_api_keys (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID REFERENCES auth.users(id),
   name TEXT NOT NULL,
   hashed_key TEXT NOT NULL UNIQUE,
   rate_limit INTEGER DEFAULT 60,

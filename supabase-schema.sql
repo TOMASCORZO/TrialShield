@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS ts_payment_fingerprints (
 -- API keys for clients
 CREATE TABLE IF NOT EXISTS ts_api_keys (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  owner_id UUID REFERENCES auth.users(id),
   name TEXT NOT NULL,
   hashed_key TEXT NOT NULL UNIQUE,
   rate_limit INTEGER DEFAULT 60,
@@ -370,6 +371,7 @@ CREATE INDEX IF NOT EXISTS idx_payment_fp_api_key ON ts_payment_fingerprints(api
 -- ═══════════════════════════════════════════════════════════════
 
 -- Subscription fields on api keys
+ALTER TABLE ts_api_keys ADD COLUMN IF NOT EXISTS owner_id UUID REFERENCES auth.users(id);
 ALTER TABLE ts_api_keys ADD COLUMN IF NOT EXISTS plan TEXT DEFAULT 'pending';
 ALTER TABLE ts_api_keys ADD COLUMN IF NOT EXISTS subscription_status TEXT DEFAULT 'pending';
 ALTER TABLE ts_api_keys ADD COLUMN IF NOT EXISTS polar_customer_id TEXT;

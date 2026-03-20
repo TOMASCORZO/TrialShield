@@ -1,4 +1,6 @@
 import type { Metadata } from 'next';
+import AuthGuard from './AuthGuard';
+import LogoutButton from './LogoutButton';
 
 export const metadata: Metadata = {
     title: 'Dashboard — TrialShield',
@@ -10,8 +12,9 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <div className="dashboard-layout">
-            {/* ─── Sidebar ───────────────────────────────────── */}
+        <AuthGuard>
+            <div className="dashboard-layout">
+                {/* ─── Sidebar ───────────────────────────────────── */}
             <aside className="sidebar">
                 <a href="/" className="sidebar-logo">
                     🛡️ <span className="gradient-text">TrialShield</span>
@@ -45,7 +48,9 @@ export default function DashboardLayout({
                 </nav>
 
                 <div className="sidebar-footer">
-                    <div style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                    <LogoutButton />
+                    
+                    <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '16px' }}>
                         TrialShield v1.0.0
                     </div>
                     <div style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '4px' }}>
@@ -59,5 +64,6 @@ export default function DashboardLayout({
                 {children}
             </main>
         </div>
+        </AuthGuard>
     );
 }
