@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
         }
 
         // ─── 2. Process content fingerprints ─────────────────
-        const contentResults = await processTrackContent(resolvedUserId, body);
+        const contentResults = await processTrackContent(resolvedUserId, body, apiKeyId);
         signals.push(...contentResults.signals);
 
         // Boost match score based on content reuse
@@ -95,7 +95,7 @@ export async function POST(request: NextRequest) {
         let duplicateReport: DuplicateReport | undefined;
         if (CONFIG.features.enableContentFingerprinting) {
             try {
-                const report = await identifyDuplicates(resolvedUserId);
+                const report = await identifyDuplicates(resolvedUserId, apiKeyId);
                 if (report.candidates.length > 0 && report.highestScore > 0) {
                     duplicateReport = report;
 

@@ -170,6 +170,7 @@ CREATE TABLE IF NOT EXISTS ts_content_fingerprints (
   user_id UUID REFERENCES ts_users(id) NOT NULL,
   content_type TEXT NOT NULL,
   content_hash TEXT NOT NULL,
+  api_key_id TEXT,
   original_value TEXT,
   file_size BIGINT,
   metadata JSONB DEFAULT '{}',
@@ -239,6 +240,7 @@ CREATE INDEX IF NOT EXISTS idx_identity_anchor_type ON ts_identity_anchors(ancho
 CREATE INDEX IF NOT EXISTS idx_content_fp_hash ON ts_content_fingerprints(content_hash);
 CREATE INDEX IF NOT EXISTS idx_content_fp_user ON ts_content_fingerprints(user_id);
 CREATE INDEX IF NOT EXISTS idx_content_fp_type ON ts_content_fingerprints(content_type, content_hash);
+CREATE INDEX IF NOT EXISTS idx_content_fp_api_key ON ts_content_fingerprints(api_key_id);
 CREATE INDEX IF NOT EXISTS idx_activity_user ON ts_activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_type ON ts_activity_log(activity_type);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON ts_activity_log(created_at);
@@ -362,6 +364,9 @@ ALTER TABLE ts_payment_fingerprints ADD COLUMN IF NOT EXISTS api_key_id TEXT;
 
 -- Indexes for multi-tenancy scoping
 CREATE INDEX IF NOT EXISTS idx_users_api_key ON ts_users(api_key_id);
+ALTER TABLE ts_content_fingerprints ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+CREATE INDEX IF NOT EXISTS idx_content_fp_api_key ON ts_content_fingerprints(api_key_id);
+
 CREATE INDEX IF NOT EXISTS idx_anchors_api_key ON ts_identity_anchors(api_key_id);
 CREATE INDEX IF NOT EXISTS idx_payment_fp_api_key ON ts_payment_fingerprints(api_key_id);
 

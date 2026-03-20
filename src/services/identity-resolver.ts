@@ -118,7 +118,7 @@ export async function resolveIdentity(
 
     // 3. Link all anchors to the resolved user (upsert)
     for (const anchor of hashedAnchors) {
-        await linkAnchor(resolvedUserId, anchor.type, anchor.hash);
+        await linkAnchor(resolvedUserId, anchor.type, anchor.hash, apiKeyId);
     }
 
     // 4. Calculate match score
@@ -139,6 +139,7 @@ export async function linkAnchor(
     userId: string,
     anchorType: AnchorType,
     anchorHash: string,
+    apiKeyId?: string,
     confidence: number = 1.0
 ): Promise<void> {
     try {
@@ -167,6 +168,7 @@ export async function linkAnchor(
                     user_id: userId,
                     anchor_type: anchorType,
                     anchor_hash: anchorHash,
+                    api_key_id: apiKeyId || null,
                     confidence,
                 });
         }

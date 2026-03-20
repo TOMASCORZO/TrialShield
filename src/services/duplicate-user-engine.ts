@@ -13,7 +13,7 @@ import { analyzeCollabVsDuplicate, getContentOverlap, analyzeContentCluster } fr
 // ─── Identify Duplicates ─────────────────────────────────────
 // Main entry point: given a user, find all potential duplicates
 // across every dimension (device, IP, email, phone, card, content, context)
-export async function identifyDuplicates(userId: string): Promise<DuplicateReport> {
+export async function identifyDuplicates(userId: string, apiKeyId: string): Promise<DuplicateReport> {
     const candidates = new Map<string, {
         sharedDimensions: Set<string>;
         anchorScores: number[];
@@ -33,6 +33,7 @@ export async function identifyDuplicates(userId: string): Promise<DuplicateRepor
             const { data: sharedAnchors } = await supabaseAdmin
                 .from('ts_identity_anchors')
                 .select('user_id, anchor_type, anchor_hash')
+                .eq('api_key_id', apiKeyId)
                 .in('anchor_hash', anchorHashes)
                 .neq('user_id', userId);
 
@@ -61,7 +62,7 @@ export async function identifyDuplicates(userId: string): Promise<DuplicateRepor
 
     // 2. Check content overlap clusters
     try {
-        const contentCluster = await analyzeContentCluster(userId);
+        const contentCluster = await analyzeContentCluster(userId, apiKeyId);
         for (const clusteredUser of contentCluster.clusteredUsers) {
             if (!candidates.has(clusteredUser.userId)) {
                 candidates.set(clusteredUser.userId, {
@@ -114,7 +115,7 @@ export async function identifyDuplicates(userId: string): Promise<DuplicateRepor
     candidateReports.sort((a, b) => b.pairwiseScore - a.pairwiseScore);
 
     // 4. Detect abuse rings
-    const abuseRing = await detectAbuseRing(userId, candidateReports);
+    const abuseRing = await detectAbuseRing(userId, apiKeyId, candidateReports);
 
     const highestScore = candidateReports.length > 0 ? candidateReports[0].pairwiseScore : 0;
 
@@ -132,7 +133,8 @@ export async function identifyDuplicates(userId: string): Promise<DuplicateRepor
 // Given a user pair, compute full pairwise score across all dimensions
 export async function computePairwiseScore(
     userA: string,
-    userB: string
+    userB: string,
+    apiKeyId?: string
 ): Promise<{ score: number; sharedDimensions: string[] }> {
     const sharedDimensions: string[] = [];
     const weights: number[] = [];
@@ -140,8 +142,8 @@ export async function computePairwiseScore(
     // 1. Check shared anchors
     try {
         const [{ data: anchorsA }, { data: anchorsB }] = await Promise.all([
-            supabaseAdmin.from('ts_identity_anchors').select('anchor_type, anchor_hash').eq('user_id', userA),
-            supabaseAdmin.from('ts_identity_anchors').select('anchor_type, anchor_hash').eq('user_id', userB),
+            supabaseAdmin.from('ts_identity_anchors').select('anchor_type, anchor_hash').eq('user_id', userA).eq('api_key_id', apiKeyId || ''),
+            supabaseAdmin.from('ts_identity_anchors').select('anchor_type, anchor_hash').eq('user_id', userB).eq('api_key_id', apiKeyId || ''),
         ]);
 
         if (anchorsA && anchorsB) {
@@ -166,7 +168,7 @@ export async function computePairwiseScore(
 
     // 2. Check content overlap
     try {
-        const overlap = await getContentOverlap(userA, userB);
+        const overlap = await getContentOverlap(userA, userB, apiKeyId || '');
         if (overlap.sharedHashes.length > 0) {
             sharedDimensions.push(`content:${overlap.sharedHashes.length}_shared`);
             // Weight based on overlap percentage
@@ -180,8 +182,8 @@ export async function computePairwiseScore(
     // 3. Check context overlap
     try {
         const [{ data: contextA }, { data: contextB }] = await Promise.all([
-            supabaseAdmin.from('ts_identity_anchors').select('anchor_hash').eq('user_id', userA).eq('anchor_type', 'context'),
-            supabaseAdmin.from('ts_identity_anchors').select('anchor_hash').eq('user_id', userB).eq('anchor_type', 'context'),
+            supabaseAdmin.from('ts_identity_anchors').select('anchor_hash').eq('user_id', userA).eq('anchor_type', 'context').eq('api_key_id', apiKeyId || ''),
+            supabaseAdmin.from('ts_identity_anchors').select('anchor_hash').eq('user_id', userB).eq('anchor_type', 'context').eq('api_key_id', apiKeyId || ''),
         ]);
 
         if (contextA && contextB) {
@@ -205,6 +207,7 @@ export async function computePairwiseScore(
 // BFS-based graph traversal to find interconnected user clusters
 export async function buildUserSimilarityGraph(
     userId: string,
+    apiKeyId?: string,
     maxDepth: number = CONFIG.duplicateEngine.maxBFSDepth
 ): Promise<{ nodes: string[]; edges: { from: string; to: string; score: number }[] }> {
     const visited = new Set<string>();
@@ -228,6 +231,7 @@ export async function buildUserSimilarityGraph(
                 const { data: neighbors } = await supabaseAdmin
                     .from('ts_identity_anchors')
                     .select('user_id')
+                    .eq('api_key_id', apiKeyId || '') // Enforce multi-tenancy correctly
                     .in('anchor_hash', hashes)
                     .neq('user_id', current.id);
 
@@ -236,7 +240,7 @@ export async function buildUserSimilarityGraph(
                     for (const neighborId of uniqueNeighbors) {
                         if (!visited.has(neighborId)) {
                             // Get pairwise score for this edge
-                            const { score } = await computePairwiseScore(current.id, neighborId);
+                            const { score } = await computePairwiseScore(current.id, neighborId, apiKeyId);
                             if (score > 10) { // Only track meaningful connections
                                 edges.push({ from: current.id, to: neighborId, score });
                                 queue.push({ id: neighborId, depth: current.depth + 1 });
@@ -252,8 +256,8 @@ export async function buildUserSimilarityGraph(
 }
 
 // ─── Scan for Abuse Rings ────────────────────────────────────
-// Finds clusters of >N strongly-connected users with expired trials
-export async function scanForAbuseRings(): Promise<{
+// Scan for Abuse Rings
+export async function scanForAbuseRings(apiKeyId: string): Promise<{
     rings: { userIds: string[]; avgScore: number; strongestLink: number }[];
 }> {
     const rings: { userIds: string[]; avgScore: number; strongestLink: number }[] = [];
@@ -263,6 +267,7 @@ export async function scanForAbuseRings(): Promise<{
         const { data: anchorCounts } = await supabaseAdmin
             .from('ts_identity_anchors')
             .select('anchor_hash')
+            .eq('api_key_id', apiKeyId)
             .limit(500);
 
         if (!anchorCounts) return { rings };
@@ -274,6 +279,7 @@ export async function scanForAbuseRings(): Promise<{
         const { data: allAnchors } = await supabaseAdmin
             .from('ts_identity_anchors')
             .select('anchor_hash, user_id')
+            .eq('api_key_id', apiKeyId)
             .limit(5000);
 
         if (!allAnchors) return { rings };
@@ -320,7 +326,7 @@ export async function scanForAbuseRings(): Promise<{
 
                 for (let i = 0; i < Math.min(expiredIds.length, 5); i++) {
                     for (let j = i + 1; j < Math.min(expiredIds.length, 5); j++) {
-                        const { score } = await computePairwiseScore(expiredIds[i], expiredIds[j]);
+                        const { score } = await computePairwiseScore(expiredIds[i], expiredIds[j], apiKeyId);
                         totalScore += score;
                         strongestLink = Math.max(strongestLink, score);
                         pairCount++;
@@ -386,6 +392,7 @@ async function fetchAccountStatusForEngine(userId: string): Promise<AccountStatu
 // ─── Detect Abuse Ring for a Specific User ───────────────────
 async function detectAbuseRing(
     userId: string,
+    apiKeyId: string | undefined,
     candidates: DuplicateCandidate[]
 ): Promise<{ detected: boolean; size: number }> {
     // Filter to strong candidates with expired trials
@@ -405,7 +412,7 @@ async function detectAbuseRing(
     for (let i = 0; i < topCandidates.length; i++) {
         for (let j = i + 1; j < topCandidates.length; j++) {
             try {
-                const { score } = await computePairwiseScore(topCandidates[i].userId, topCandidates[j].userId);
+                const { score } = await computePairwiseScore(topCandidates[i].userId, topCandidates[j].userId, apiKeyId);
                 if (score >= CONFIG.duplicateEngine.possibleThreshold) {
                     interconnected++;
                 }
