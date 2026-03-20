@@ -99,7 +99,7 @@ CREATE TABLE IF NOT EXISTS ts_api_keys (
 -- Audit logs for compliance
 CREATE TABLE IF NOT EXISTS ts_audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  api_key_id UUID REFERENCES ts_api_keys(id),
+  api_key_id TEXT,
   endpoint TEXT NOT NULL,
   method TEXT NOT NULL,
   request_body JSONB DEFAULT '{}',
@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS ts_audit_logs (
 -- Rate limiting tracking
 CREATE TABLE IF NOT EXISTS ts_rate_limits (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  api_key_id UUID REFERENCES ts_api_keys(id),
+  api_key_id TEXT,
   window_start TIMESTAMPTZ NOT NULL,
   request_count INTEGER DEFAULT 1,
   UNIQUE(api_key_id, window_start)
@@ -240,7 +240,6 @@ CREATE INDEX IF NOT EXISTS idx_identity_anchor_type ON ts_identity_anchors(ancho
 CREATE INDEX IF NOT EXISTS idx_content_fp_hash ON ts_content_fingerprints(content_hash);
 CREATE INDEX IF NOT EXISTS idx_content_fp_user ON ts_content_fingerprints(user_id);
 CREATE INDEX IF NOT EXISTS idx_content_fp_type ON ts_content_fingerprints(content_type, content_hash);
-CREATE INDEX IF NOT EXISTS idx_content_fp_api_key ON ts_content_fingerprints(api_key_id);
 CREATE INDEX IF NOT EXISTS idx_activity_user ON ts_activity_log(user_id);
 CREATE INDEX IF NOT EXISTS idx_activity_type ON ts_activity_log(activity_type);
 CREATE INDEX IF NOT EXISTS idx_activity_created ON ts_activity_log(created_at);
@@ -369,6 +368,23 @@ CREATE INDEX IF NOT EXISTS idx_content_fp_api_key ON ts_content_fingerprints(api
 
 CREATE INDEX IF NOT EXISTS idx_anchors_api_key ON ts_identity_anchors(api_key_id);
 CREATE INDEX IF NOT EXISTS idx_payment_fp_api_key ON ts_payment_fingerprints(api_key_id);
+
+ALTER TABLE ts_activity_log ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+ALTER TABLE ts_risk_events ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+ALTER TABLE ts_risk_events DROP CONSTRAINT IF EXISTS ts_risk_events_api_key_id_fkey;
+ALTER TABLE ts_risk_events ALTER COLUMN api_key_id TYPE TEXT;
+
+ALTER TABLE ts_device_graph ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+ALTER TABLE ts_device_graph DROP CONSTRAINT IF EXISTS ts_device_graph_api_key_id_fkey;
+ALTER TABLE ts_device_graph ALTER COLUMN api_key_id TYPE TEXT;
+
+ALTER TABLE ts_audit_logs ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+ALTER TABLE ts_audit_logs DROP CONSTRAINT IF EXISTS ts_audit_logs_api_key_id_fkey;
+ALTER TABLE ts_audit_logs ALTER COLUMN api_key_id TYPE TEXT;
+
+ALTER TABLE ts_rate_limits ADD COLUMN IF NOT EXISTS api_key_id TEXT;
+ALTER TABLE ts_rate_limits DROP CONSTRAINT IF EXISTS ts_rate_limits_api_key_id_fkey;
+ALTER TABLE ts_rate_limits ALTER COLUMN api_key_id TYPE TEXT;
 
 
 -- ═══════════════════════════════════════════════════════════════
