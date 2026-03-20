@@ -1,0 +1,13 @@
+--- Starting Mobile Fingerprint Test ---
+1. Creating bad user: 22ee9bea-c8ce-4585-8e43-035ad3f7457a
+2. Marking bad user as revoked (quarantined)...
+3. Simulating clean user c0a07198-9186-4ef4-b44d-c5ebde9a5891 initiating session with same device IOS-EVIL-001
+4. Monitoring Result for Clean User:
+{
+  "userId": "c0a07198-9186-4ef4-b44d-c5ebde9a5891",
+  "usageVelocity": 1,
+  "anomalyScore": 0,
+  "isRevoked": false,
+  "action": "NONE"
+}
+FAILED: Expected REVOKE action.
