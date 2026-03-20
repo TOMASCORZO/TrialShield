@@ -10,7 +10,8 @@ export default function HomePage() {
                     <li><a href="#features">Features</a></li>
                     <li><a href="#api">API</a></li>
                     <li><a href="/docs">Docs</a></li>
-                    <li><a href="/dashboard" className="btn btn-primary btn-sm">Dashboard →</a></li>
+                    <li><a href="/login" className="btn btn-secondary btn-sm" style={{ border: 'none', background: 'transparent' }}>Login</a></li>
+                    <li><a href="/register" className="btn btn-primary btn-sm">Get Started →</a></li>
                 </ul>
             </nav>
 
@@ -26,8 +27,8 @@ export default function HomePage() {
                         VPN/TOR users, device farms, and coordinated attacks — all in under 100ms.
                     </p>
                     <div className="hero-buttons">
-                        <a href="/dashboard" className="btn btn-primary">
-                            🚀 Open Dashboard
+                        <a href="/register" className="btn btn-primary">
+                            🚀 Get Started Free
                         </a>
                         <a href="/docs" className="btn btn-secondary">
                             📖 API Documentation
