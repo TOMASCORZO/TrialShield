@@ -70,7 +70,7 @@ export async function authenticateRequest(
     // Look up the API key
     const { data: keyRecord } = await supabaseAdmin
         .from('ts_api_keys')
-        .select('id, is_active, rate_limit, plan, subscription_status, polar_customer_id, trial_ends_at')
+        .select('id, is_active, rate_limit, plan, subscription_status, creem_customer_id, trial_ends_at')
         .eq('hashed_key', apiKeyId)
         .single();
 
@@ -220,9 +220,9 @@ export function buildAuthError(auth: AuthResult): NextResponse {
     });
 }
 
-// ─── Activate subscription (called by Polar webhook) ─────────
+// ─── Activate subscription (called by Creem webhook) ─────────
 export async function activateSubscription(
-    polarCustomerId: string,
+    creemCustomerId: string,
     plan: string,
     status: string
 ): Promise<boolean> {
@@ -231,23 +231,23 @@ export async function activateSubscription(
         .update({
             plan,
             subscription_status: status,
-            polar_customer_id: polarCustomerId,
+            creem_customer_id: creemCustomerId,
         })
-        .eq('polar_customer_id', polarCustomerId);
+        .eq('creem_customer_id', creemCustomerId);
 
     return !error;
 }
 
-// ─── Link Polar customer to API key ──────────────────────────
-export async function linkPolarCustomer(
+// ─── Link Creem customer to API key ──────────────────────────
+export async function linkCreemCustomer(
     apiKeyId: string,
-    polarCustomerId: string,
+    creemCustomerId: string,
     plan: string
 ): Promise<boolean> {
     const { error } = await supabaseAdmin
         .from('ts_api_keys')
         .update({
-            polar_customer_id: polarCustomerId,
+            creem_customer_id: creemCustomerId,
             plan,
             subscription_status: 'active',
         })

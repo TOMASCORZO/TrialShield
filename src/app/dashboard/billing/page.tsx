@@ -1,14 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface BillingInfo {
     plan: string;
     subscriptionStatus: string;
-    polarCustomerId?: string;
+    creemCustomerId?: string;
     trialEndsAt?: string;
     totalRequests: number;
     rateLimit: number;
+    apiKeyId?: string;
 }
 
 const PLANS = [
@@ -65,34 +67,59 @@ const PLANS = [
 export default function BillingPage() {
     const [billing, setBilling] = useState<BillingInfo | null>(null);
     const [loading, setLoading] = useState(true);
-    const [linkingKey, setLinkingKey] = useState('');
-    const [linkMessage, setLinkMessage] = useState('');
-
-    const apiKey = typeof window !== 'undefined'
-        ? (process.env.NEXT_PUBLIC_TRIALSHIELD_TEST_KEY || 'master')
-        : 'master';
+    const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
 
     useEffect(() => { fetchBilling(); }, []);
 
     async function fetchBilling() {
         try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
             const res = await fetch('/api/v1/keys', {
-                headers: { 'X-API-Key': apiKey },
+                headers: { 'Authorization': `Bearer ${session.access_token}` },
             });
             const data = await res.json();
             const key = data.keys?.[0];
             if (key) {
                 setBilling({
-                    plan: key.plan || 'free_trial',
-                    subscriptionStatus: key.subscription_status || 'trialing',
-                    polarCustomerId: key.polar_customer_id,
+                    plan: key.plan || 'pending',
+                    subscriptionStatus: key.subscription_status || 'pending',
+                    creemCustomerId: key.creem_customer_id,
                     trialEndsAt: key.trial_ends_at,
                     totalRequests: key.total_requests || 0,
-                    rateLimit: key.rate_limit || 30,
+                    rateLimit: key.rate_limit || 0,
+                    apiKeyId: key.id,
                 });
             }
         } catch { }
         finally { setLoading(false); }
+    }
+
+    async function handleCheckout(planId: string) {
+        setCheckoutLoading(planId);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+
+            const res = await fetch('/api/v1/creem/checkout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ plan: planId }),
+            });
+
+            const data = await res.json();
+            if (data.checkoutUrl) {
+                window.location.href = data.checkoutUrl;
+            }
+        } catch (err) {
+            console.error('Checkout error:', err);
+        } finally {
+            setCheckoutLoading(null);
+        }
     }
 
     if (loading) {
@@ -114,7 +141,7 @@ export default function BillingPage() {
         <div className="animate-fade-in">
             <div className="page-header">
                 <div>
-                    <h1>💰 Billing & Plans</h1>
+                    <h1>Billing & Plans</h1>
                     <p>Manage your subscription and plan</p>
                 </div>
             </div>
@@ -143,12 +170,12 @@ export default function BillingPage() {
                         </div>
                         {isPending && (
                             <div style={{ fontSize: '13px', color: 'var(--color-deny)', marginTop: '4px' }}>
-                                🔒 Payment required to activate your API key
+                                Payment required to activate your API key
                             </div>
                         )}
                         {trialDaysLeft !== null && (
                             <div style={{ fontSize: '13px', color: trialDaysLeft < 7 ? 'var(--color-deny)' : 'var(--color-challenge)', marginTop: '4px' }}>
-                                ⏰ {trialDaysLeft} days remaining in free trial
+                                {trialDaysLeft} days remaining in free trial
                             </div>
                         )}
                     </div>
@@ -170,6 +197,7 @@ export default function BillingPage() {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
                 {PLANS.map(plan => {
                     const isCurrent = billing?.plan === plan.id;
+                    const isLoading = checkoutLoading === plan.id;
                     return (
                         <div key={plan.id} className="glass-card" style={{
                             padding: '24px', position: 'relative', overflow: 'hidden',
@@ -220,16 +248,18 @@ export default function BillingPage() {
                                     Current Plan
                                 </button>
                             ) : (
-                                <a href={`https://polar.sh/trialshield/checkout?product=${plan.id}`}
-                                    target="_blank" rel="noopener"
+                                <button
+                                    onClick={() => handleCheckout(plan.id)}
+                                    disabled={isLoading}
                                     className="btn btn-primary btn-sm"
                                     style={{
-                                        width: '100%', textAlign: 'center', display: 'block',
+                                        width: '100%', textAlign: 'center',
                                         background: plan.color,
                                         borderColor: plan.color,
+                                        cursor: isLoading ? 'wait' : 'pointer',
                                     }}>
-                                    {isPaid ? 'Switch Plan' : 'Subscribe'}
-                                </a>
+                                    {isLoading ? 'Redirecting...' : isPaid ? 'Switch Plan' : 'Subscribe'}
+                                </button>
                             )}
                         </div>
                     );
@@ -249,12 +279,11 @@ export default function BillingPage() {
                             How Payment Activation Works
                         </div>
                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                            <strong>1.</strong> Click &quot;Subscribe&quot; on your chosen plan → you&apos;ll be redirected to <strong>Polar.sh</strong><br />
-                            <strong>2.</strong> Complete the payment on Polar.sh<br />
-                            <strong>3.</strong> Polar sends a webhook to TrialShield → <strong>your API key is automatically activated</strong><br />
-                            <strong>4.</strong> That&apos;s it! Your API key is now authorized with the new plan and rate limits<br />
+                            <strong>1.</strong> Click &quot;Subscribe&quot; on your chosen plan<br />
+                            <strong>2.</strong> Complete the secure payment via <strong>Creem</strong><br />
+                            <strong>3.</strong> Your API key is <strong>automatically activated</strong> with the new plan and rate limits<br />
                             <br />
-                            🔄 Upgrades, downgrades, and cancellations are all handled automatically via Polar.sh webhooks.
+                            Upgrades, downgrades, and cancellations are all handled automatically.
                         </div>
                     </div>
                 </div>
@@ -262,7 +291,7 @@ export default function BillingPage() {
 
             {/* Usage stats */}
             <div className="glass-card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>📊 Usage Summary</h3>
+                <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Usage Summary</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
                     <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Total Requests</div>
@@ -270,12 +299,12 @@ export default function BillingPage() {
                     </div>
                     <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Rate Limit</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800 }}>{billing?.rateLimit || 30}/min</div>
+                        <div style={{ fontSize: '24px', fontWeight: 800 }}>{billing?.rateLimit || 0}/min</div>
                     </div>
                     <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
                         <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Plan</div>
                         <div style={{ fontSize: '24px', fontWeight: 800, textTransform: 'capitalize' }}>
-                            {billing?.plan?.replace('_', ' ') || 'Trial'}
+                            {billing?.plan?.replace('_', ' ') || 'None'}
                         </div>
                     </div>
                 </div>
