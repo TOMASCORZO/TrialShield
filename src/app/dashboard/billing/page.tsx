@@ -68,6 +68,7 @@ export default function BillingPage() {
     const [billing, setBilling] = useState<BillingInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
+    const [checkoutError, setCheckoutError] = useState<string | null>(null);
 
     useEffect(() => { fetchBilling(); }, []);
 
@@ -98,9 +99,13 @@ export default function BillingPage() {
 
     async function handleCheckout(planId: string) {
         setCheckoutLoading(planId);
+        setCheckoutError(null);
         try {
             const { data: { session } } = await supabase.auth.getSession();
-            if (!session) return;
+            if (!session) {
+                setCheckoutError('Not authenticated. Please log in again.');
+                return;
+            }
 
             const res = await fetch('/api/v1/creem/checkout', {
                 method: 'POST',
@@ -112,11 +117,20 @@ export default function BillingPage() {
             });
 
             const data = await res.json();
+
+            if (!res.ok) {
+                setCheckoutError(data.error || 'Failed to create checkout session');
+                return;
+            }
+
             if (data.checkoutUrl) {
                 window.location.href = data.checkoutUrl;
+            } else {
+                setCheckoutError('No checkout URL returned. Check Creem product configuration.');
             }
         } catch (err) {
             console.error('Checkout error:', err);
+            setCheckoutError('Network error. Please try again.');
         } finally {
             setCheckoutLoading(null);
         }
@@ -192,6 +206,19 @@ export default function BillingPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Checkout error */}
+            {checkoutError && (
+                <div style={{
+                    padding: '14px 20px', marginBottom: '24px',
+                    background: 'rgba(239, 68, 68, 0.08)',
+                    border: '1px solid rgba(239, 68, 68, 0.2)',
+                    borderRadius: '12px', color: 'var(--color-deny)',
+                    fontSize: '14px', fontWeight: 600,
+                }}>
+                    {checkoutError}
+                </div>
+            )}
 
             {/* Plan cards */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
