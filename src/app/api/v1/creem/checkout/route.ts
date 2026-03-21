@@ -66,6 +66,7 @@ export async function POST(request: NextRequest) {
         const baseUrl = `${protocol}://${host}`;
 
         // Create checkout via Creem API
+        console.log('[TrialShield] Creating Creem checkout:', { productId, planId, creemBaseUrl, email: user.email });
         const checkoutRes = await fetch(`${creemBaseUrl}/v1/checkouts`, {
             method: 'POST',
             headers: {
@@ -86,17 +87,30 @@ export async function POST(request: NextRequest) {
             }),
         });
 
+        const checkoutData = await checkoutRes.json().catch(() => ({}));
+
         if (!checkoutRes.ok) {
-            const errData = await checkoutRes.json().catch(() => ({}));
-            console.error('[TrialShield] Creem checkout error:', errData);
-            return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 });
+            console.error('[TrialShield] Creem checkout error:', {
+                status: checkoutRes.status,
+                response: checkoutData,
+                productId,
+                creemBaseUrl,
+            });
+            return NextResponse.json({
+                error: `Creem error (${checkoutRes.status}): ${checkoutData.message || checkoutData.error || JSON.stringify(checkoutData)}`,
+            }, { status: 500 });
         }
 
-        const checkoutData = await checkoutRes.json();
+        const checkoutUrl = checkoutData.checkout_url || checkoutData.checkoutUrl || checkoutData.url;
 
-        return NextResponse.json({
-            checkoutUrl: checkoutData.checkout_url || checkoutData.checkoutUrl,
-        });
+        if (!checkoutUrl) {
+            console.error('[TrialShield] No checkout URL in Creem response:', checkoutData);
+            return NextResponse.json({
+                error: `Creem returned no checkout URL. Response: ${JSON.stringify(checkoutData).slice(0, 200)}`,
+            }, { status: 500 });
+        }
+
+        return NextResponse.json({ checkoutUrl });
     } catch (error) {
         console.error('[TrialShield] Checkout error:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
