@@ -34,10 +34,14 @@ export async function GET() {
             compliance: true,
         },
         disposableDomains: getDisposableDomainCount(),
-        externalApis: {
+        env: {
+            supabaseUrl: !!process.env.NEXT_PUBLIC_SUPABASE_URL,
+            supabaseAnonKey: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+            supabaseServiceKey: !!process.env.SUPABASE_SERVICE_ROLE_KEY,
+            masterKey: !!process.env.TRIALSHIELD_MASTER_KEY,
             haveibeenpwned: !!process.env.HIBP_API_KEY,
             abuseipdb: !!process.env.ABUSEIPDB_API_KEY,
-            ipApi: true,
+            ipapi: !!process.env.IP_API_KEY,
         },
         latency: `${Date.now() - startTime}ms`,
     });
