@@ -19,8 +19,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
         };
         checkUser();
 
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            if (!session) {
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'INITIAL_SESSION') return;
+            
+            if (!session || event === 'SIGNED_OUT') {
                 router.push('/login');
             }
         });

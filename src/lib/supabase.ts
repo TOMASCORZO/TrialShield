@@ -11,7 +11,12 @@ function getSupabaseUrl(): string {
 export const supabase = new Proxy({} as SupabaseClient, {
     get(_target, prop) {
         if (!_supabase) {
-            _supabase = createClient(getSupabaseUrl(), process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || '');
+            const url = getSupabaseUrl();
+            const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+            if (!url || !key) {
+                throw new Error("🚨 TrialShield Config Error: NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY is missing. Check your .env.local or Vercel Environment Variables.");
+            }
+            _supabase = createClient(url, key);
         }
         return (_supabase as any)[prop];
     }
@@ -21,7 +26,12 @@ export const supabase = new Proxy({} as SupabaseClient, {
 export const supabaseAdmin = new Proxy({} as SupabaseClient, {
     get(_target, prop) {
         if (!_supabaseAdmin) {
-            _supabaseAdmin = createClient(getSupabaseUrl(), process.env.SUPABASE_SERVICE_ROLE_KEY || '');
+            const url = getSupabaseUrl();
+            const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+            if (!url || !key) {
+                throw new Error("🚨 TrialShield Config Error: NEXT_PUBLIC_SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY is missing. Check your .env.local or Vercel Environment Variables.");
+            }
+            _supabaseAdmin = createClient(url, key);
         }
         return (_supabaseAdmin as any)[prop];
     }
