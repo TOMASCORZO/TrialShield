@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
                 'x-api-key': creemApiKey,
             },
             body: JSON.stringify({
-                productId,
-                successUrl: `${baseUrl}/dashboard/billing?success=true`,
+                product_id: productId,
+                success_url: `${baseUrl}/dashboard/billing?success=true`,
                 customer: {
                     email: user.email,
                 },
