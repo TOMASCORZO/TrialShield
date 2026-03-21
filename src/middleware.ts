@@ -28,7 +28,7 @@ export async function middleware(request: NextRequest) {
     }
 
     // Skip auth for public endpoints and dashboard routes (which use session auth or are public in MVP)
-    const publicPaths = ['/api/v1/health', '/api/v1/docs', '/api/v1/sdk', '/api/v1/dashboard'];
+    const publicPaths = ['/api/v1/health', '/api/v1/docs', '/api/v1/sdk', '/api/v1/dashboard', '/api/v1/stats'];
     if (publicPaths.some(p => request.nextUrl.pathname.startsWith(p))) {
         return NextResponse.next();
     }
