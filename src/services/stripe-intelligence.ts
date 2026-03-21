@@ -59,6 +59,7 @@ const STRIPE_CONFIG = {
     stripeElevatedPenalty: 15,
     cardReusedPenalty: 40,        // Same card fingerprint across users
     binReusedPenalty: 20,         // Same BIN (first 6 digits) across users
+    heuristicCardReusedPenalty: 40, // Same BIN + last4 + ZIP across users
     countryMismatchPenalty: 15,   // Card country ≠ billing country
     lowAmountPenalty: 10,         // Suspiciously low payment (testing the card)
     lowAmountThreshold: 1.00,    // Under $1 = suspicious
@@ -123,6 +124,26 @@ export async function analyzeStripeCard(
                 description: `Same card BIN used across ${binReusedCount} accounts`,
                 value: binReusedCount,
             });
+        }
+
+        // ─── 3.5. Heuristic Exact Card Match (BIN + Last4 + ZIP) ─
+        if (card.last4 && card.billingZip) {
+            const zipHash = sha256(card.billingZip);
+            const { count: exactCount } = await supabaseAdmin
+                .from('ts_payment_fingerprints')
+                .select('*', { count: 'exact', head: true })
+                .eq('bin_hash', binHash)
+                .eq('last4', card.last4)
+                .eq('billing_zip_hash', zipHash);
+            
+            if (exactCount && exactCount > 1) {
+                score += STRIPE_CONFIG.heuristicCardReusedPenalty;
+                signals.push({
+                    module: 'GRAPH', signal: 'HEURISTIC_CARD_MATCH', severity: 'CRITICAL',
+                    description: `Multiple accounts share the exact same BIN, Last4, and Zip Code (${exactCount} accounts). Highly probable duplicate card evasion.`,
+                    value: exactCount,
+                });
+            }
         }
     }
 
