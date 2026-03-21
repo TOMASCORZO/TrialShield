@@ -36,10 +36,6 @@ export default function DashboardPage() {
             });
             
             if (!res.ok) {
-                if (res.status === 401) {
-                    window.location.href = '/login';
-                    return;
-                }
                 throw new Error(`Failed to fetch stats: ${res.statusText}`);
             }
             const data = await res.json();

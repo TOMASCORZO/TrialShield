@@ -15,6 +15,7 @@ export async function GET(request: Request) {
 
         const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
         if (authError || !user) {
+            console.error('[Stats API] Auth error:', authError || 'No user found for token');
             return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
         }
 

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -10,6 +10,18 @@ export default function LoginPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [checking, setChecking] = useState(true);
+
+    // If already logged in, go straight to dashboard
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                router.replace('/dashboard');
+            } else {
+                setChecking(false);
+            }
+        });
+    }, [router]);
 
     const handleLogin = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -24,14 +36,15 @@ export default function LoginPage() {
 
             if (signInError) throw signInError;
 
-            // Redirect to dashboard on success
-            router.push('/dashboard');
+            router.replace('/dashboard');
         } catch (err: any) {
             setError(err.message || 'An error occurred during login.');
         } finally {
             setLoading(false);
         }
     };
+
+    if (checking) return null;
 
     return (
         <div className="glass-card animate-fade-in" style={{ padding: '40px' }}>

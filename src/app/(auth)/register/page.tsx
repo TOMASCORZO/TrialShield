@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
@@ -10,6 +10,18 @@ export default function RegisterPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [checking, setChecking] = useState(true);
+
+    // If already logged in, go straight to dashboard
+    useEffect(() => {
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                router.replace('/dashboard');
+            } else {
+                setChecking(false);
+            }
+        });
+    }, [router]);
 
     const handleRegister = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -17,23 +29,30 @@ export default function RegisterPage() {
         setError(null);
 
         try {
-            const { error: signUpError } = await supabase.auth.signUp({
+            const { data, error: signUpError } = await supabase.auth.signUp({
                 email,
                 password,
             });
 
             if (signUpError) throw signUpError;
 
-            // Wait 1 second before redirecting or show success message
-            // Depending on Supabase settings, email confirmation might be required.
-            alert("Registration successful! You can now log in.");
-            router.push('/login');
+            // If session exists, user is auto-confirmed and logged in
+            if (data.session) {
+                router.push('/dashboard');
+                return;
+            }
+
+            // If no session, email confirmation is required
+            setError('Check your email to confirm your account, then log in.');
+            setTimeout(() => router.push('/login'), 3000);
         } catch (err: any) {
             setError(err.message || 'An error occurred during registration.');
         } finally {
             setLoading(false);
         }
     };
+
+    if (checking) return null;
 
     return (
         <div className="glass-card animate-fade-in" style={{ padding: '40px' }}>

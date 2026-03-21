@@ -6,32 +6,42 @@ import { supabase } from '@/lib/supabase';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
     const [loading, setLoading] = useState(true);
+    const [authenticated, setAuthenticated] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
-        const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (!session) {
-                router.push('/login');
-            } else {
-                setLoading(false);
-            }
-        };
-        checkUser();
+        let mounted = true;
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'INITIAL_SESSION') return;
-            
-            if (!session || event === 'SIGNED_OUT') {
-                router.push('/login');
+            if (!mounted) return;
+
+            if (event === 'SIGNED_OUT' || !session) {
+                setAuthenticated(false);
+                router.replace('/login');
+            } else {
+                setAuthenticated(true);
+                setLoading(false);
             }
         });
 
-        return () => subscription.unsubscribe();
+        // Initial check
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (!mounted) return;
+            if (!session) {
+                router.replace('/login');
+            } else {
+                setAuthenticated(true);
+                setLoading(false);
+            }
+        });
+
+        return () => {
+            mounted = false;
+            subscription.unsubscribe();
+        };
     }, [router]);
 
-    if (loading) {
-        // Return a blank loading screen that matches the dashboard background
+    if (loading || !authenticated) {
         return (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', background: 'var(--bg-primary)' }}>
                 <div style={{ color: 'var(--text-muted)' }}>Loading...</div>
