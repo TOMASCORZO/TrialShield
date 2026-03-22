@@ -8,6 +8,7 @@ export default function HomePage() {
                 </a>
                 <ul className="landing-nav-links">
                     <li><a href="#features">Features</a></li>
+                    <li><a href="/pricing">Pricing</a></li>
                     <li><a href="#api">API</a></li>
                     <li><a href="/docs">Docs</a></li>
                     <li><a href="/login" className="btn btn-secondary btn-sm" style={{ border: 'none', background: 'transparent' }}>Login</a></li>
@@ -205,7 +206,7 @@ export default function HomePage() {
                     🛡️ <strong>TrialShield</strong> — Stop trial abuse. Protect your revenue.
                 </p>
                 <p style={{ marginTop: '8px' }}>
-                    <a href="/dashboard">Dashboard</a> · <a href="/docs">API Docs</a> · <a href="https://github.com">GitHub</a>
+                    <a href="/dashboard">Dashboard</a> · <a href="/docs">API Docs</a> · <a href="/pricing">Pricing</a> · <a href="/terms">Terms</a> · <a href="/privacy">Privacy</a>
                 </p>
             </footer>
         </>
