@@ -117,7 +117,7 @@ export default function PrivacyPage() {
                     <ul style={{ paddingLeft: '24px', marginTop: '8px' }}>
                         <li><strong>Supabase</strong> — database and authentication</li>
                         <li><strong>Vercel</strong> — hosting and deployment</li>
-                        <li><strong>Creem</strong> — payment processing for subscriptions</li>
+                        <li><strong>Creem</strong> (pending approval) — payment processing for subscriptions</li>
                     </ul>
                     <p style={{ marginTop: '8px' }}>We do not share end-user evaluation data with any of these providers. They only process customer account and billing data as needed for their services.</p>
 

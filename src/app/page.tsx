@@ -60,105 +60,105 @@ export default function HomePage() {
             {/* ─── Features Grid ───────────────────────────────── */}
             <section id="features" className="features-section">
                 <div className="section-header">
-                    <h2><span className="gradient-text">Military-Grade</span> Fraud Intelligence</h2>
-                    <p>17 autonomous modules operating in concert. Every signal cross-references every other signal. Abusers have nowhere to hide.</p>
+                    <h2><span className="gradient-text">Enterprise-Grade</span> Detection</h2>
+                    <p>17 interconnected modules working in parallel to catch every type of trial abuser.</p>
                 </div>
 
                 <div className="features-grid">
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">📧</div>
-                        <h3>Email Deep Scan</h3>
-                        <p>Cross-reference against 90K+ disposable domains in real-time. MX/SMTP handshake validation, Gmail dot-trick & alias unwinding, HaveIBeenPwned breach correlation. If the inbox is a ghost, we know before you do.</p>
+                        <h3>Email Intelligence</h3>
+                        <p>90K+ disposable domain database, MX/SMTP validation, Gmail dot-trick detection, HaveIBeenPwned breach checks, alias normalization.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">📱</div>
-                        <h3>Telecom Forensics</h3>
-                        <p>Real-time carrier interrogation reveals VOIP burners, virtual SIMs, and line-type masking. Country-origin risk profiling catches number farms before the first OTP lands.</p>
+                        <h3>Phone Intelligence</h3>
+                        <p>Real carrier lookup, VOIP detection, line type analysis (mobile/VOIP/landline), country risk scoring, number validation.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🌐</div>
-                        <h3>Network Threat Radar</h3>
-                        <p>Pierces through VPNs, proxies, TOR exit nodes, and residential proxy botnets. Impossible-travel detection, ASN reputation scoring, and AbuseIPDB correlation expose even the most sophisticated cloaking setups.</p>
+                        <h3>IP & Network Intel</h3>
+                        <p>VPN/Proxy/TOR/datacenter detection, AbuseIPDB reputation, impossible travel, ASN analysis, residential proxy detection.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🖥️</div>
-                        <h3>Device DNA</h3>
-                        <p>Canvas, WebGL, AudioContext, and font-stack fingerprinting create an immutable device identity with 99.5%+ accuracy. Detects headless browsers, Puppeteer farms, and anti-detect toolkits in milliseconds.</p>
+                        <h3>Device Fingerprinting</h3>
+                        <p>Canvas, WebGL, audio, font fingerprinting. 99.5%+ accuracy. Headless/Puppeteer detection. Anti-spoofing resistance.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">💳</div>
                         <h3>Stripe Card Fingerprinting</h3>
-                        <p>Intercept Stripe webhook events to extract card fingerprints, BIN clusters, and prepaid card signals. When the same Visa ends up on 5 &quot;different&quot; accounts, TrialShield connects the dots instantly. Radar risk fusion included.</p>
+                        <p>Card fingerprint extraction via Stripe webhooks. BIN clustering, prepaid card detection, card reuse across accounts, Radar risk level fusion, CVC/AVS failure tracking.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🔑</div>
                         <h3>OAuth Ghost Detection</h3>
-                        <p>Analyze OAuth-authenticated accounts to identify single-purpose identities. Freshly minted Google or GitHub accounts used solely to bypass your signup wall are flagged as high-risk phantom accounts before they ever touch your product.</p>
+                        <p>Detects freshly created OAuth accounts (Google/GitHub) used only to bypass signup walls. Account age analysis, single-purpose identity flagging, phantom account risk scoring.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🧬</div>
                         <h3>Content Fingerprinting</h3>
-                        <p>Every file, image, document, or asset your users upload is silently hashed and indexed. When Account B uploads the same portfolio as Account A, TrialShield builds a personalized duplication index that exposes multi-account abusers through their own content.</p>
+                        <p>Every user upload (files, images, documents) is hashed and cross-referenced across accounts. Builds a personalized duplication index to identify multi-account abusers through shared content.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🪞</div>
                         <h3>Context Fingerprinting</h3>
-                        <p>Every LLM interaction, prompt pattern, and conversation arc is captured and distilled into a behavioral signature. Abusers who spin up new accounts but ask the same questions in the same way are identified through their unique cognitive fingerprint.</p>
+                        <p>LLM interaction patterns, prompt styles, and conversation arcs are stored and compared across accounts. Identifies abusers through their unique cognitive and usage fingerprint.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🧠</div>
-                        <h3>Behavioral Biometrics</h3>
-                        <p>Mouse entropy mapping, keystroke cadence analysis, scroll velocity profiling, and signup flow timing. Bots move like machines. Humans move like humans. We measure the difference in microseconds.</p>
+                        <h3>Behavioral Analysis</h3>
+                        <p>Signup velocity tracking, mouse entropy, keystroke cadence, bot scoring, session anomaly detection.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
-                        <div className="feature-icon">🕸️</div>
-                        <h3>Abuse Graph Engine</h3>
-                        <p>Maps hidden relationships between accounts through shared devices, IPs, emails, cards, and content. Visualize entire fraud rings. One compromised node unravels the whole network.</p>
+                        <div className="feature-icon">🔗</div>
+                        <h3>Graph Analysis</h3>
+                        <p>Device-to-account clustering, IP/email/phone/card linking, coordinated attack detection, abuse network identification.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">⚡</div>
-                        <h3>Neural Risk Scoring</h3>
-                        <p>All 17 modules feed a unified 0-100 risk score with fully explainable decisions. Configurable sensitivity. Shadow mode for safe testing. Self-improving feedback loop that gets smarter with every evaluation.</p>
+                        <h3>ML Risk Scoring</h3>
+                        <p>Unified 0-100 score with configurable weights. Explainable AI decisions. Shadow mode for testing. Feedback loop.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🚧</div>
-                        <h3>Adaptive Friction</h3>
-                        <p>Dynamically escalate challenges based on risk: invisible CAPTCHA, email verification, phone OTP, card micro-auth. Legitimate users feel nothing. Abusers hit a wall that gets higher the harder they push.</p>
+                        <h3>Adaptive Challenges</h3>
+                        <p>Progressive friction: invisible CAPTCHA, email/phone verification, 2FA, card auth. Zero friction for legitimate users.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">📊</div>
-                        <h3>Continuous Surveillance</h3>
-                        <p>Post-signup behavioral monitoring with usage velocity tracking, anomaly detection, and auto-quarantine. Catch abusers who pass initial screening but reveal themselves through usage patterns over time.</p>
+                        <h3>Post-Signup Monitoring</h3>
+                        <p>Usage velocity tracking, anomaly detection, auto-quarantine, continuous risk re-evaluation.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🔒</div>
-                        <h3>Privacy by Design</h3>
-                        <p>Full GDPR/CCPA compliance baked into every layer. SHA-256 PII hashing, data minimization, programmatic delete endpoints, immutable audit trails. Protect your users while protecting your business.</p>
+                        <h3>GDPR/CCPA Compliant</h3>
+                        <p>PII hashing, data minimization, delete requests, audit logging, consent tracking.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🏗️</div>
-                        <h3>Signal Fusion Hub</h3>
-                        <p>100+ enrichment signals from every module converge into a single intelligence feed. Webhook events, historical pattern queries, social graph inference. The more data flows in, the sharper the detection becomes.</p>
+                        <h3>Data Hub</h3>
+                        <p>100+ enrichment signals, webhook events, historical queries, social profile inference.</p>
                     </div>
 
                     <div className="glass-card feature-card animate-fade-in">
                         <div className="feature-icon">🚀</div>
-                        <h3>Sub-100ms Latency</h3>
-                        <p>All 17 modules execute in parallel, not sequentially. Edge-deployed infrastructure delivers verdicts faster than your signup form can render. Zero perceived delay for your users. Instant death for abusers.</p>
+                        <h3>Performance & DX</h3>
+                        <p>&lt;100ms latency, SDK for browser, rate limiting, 99.99% availability target.</p>
                     </div>
                 </div>
             </section>

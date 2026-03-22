@@ -32,7 +32,7 @@ export default function TermsPage() {
                     <p>API keys are issued per account and must not be shared publicly or with unauthorized third parties. You are responsible for all API calls made with your keys. We reserve the right to revoke API keys that are used in violation of these terms or that pose a security risk.</p>
 
                     <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '32px', marginBottom: '12px' }}>5. Subscriptions and Payment</h2>
-                    <p>Paid plans are billed monthly through our payment processor, Creem. Subscriptions renew automatically unless canceled before the end of the billing period. Refunds are handled on a case-by-case basis. We reserve the right to change pricing with 30 days&apos; notice.</p>
+                    <p>Paid plans are billed monthly through our payment processor, Creem (pending approval). Subscriptions renew automatically unless canceled before the end of the billing period. Refunds are handled on a case-by-case basis. We reserve the right to change pricing with 30 days&apos; notice.</p>
 
                     <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '32px', marginBottom: '12px' }}>6. Acceptable Use</h2>
                     <p>You agree not to:</p>

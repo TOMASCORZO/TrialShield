@@ -307,7 +307,7 @@ export default function BillingPage() {
                         </div>
                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
                             <strong>1.</strong> Click &quot;Subscribe&quot; on your chosen plan<br />
-                            <strong>2.</strong> Complete the secure payment via <strong>Creem</strong><br />
+                            <strong>2.</strong> Complete the secure payment via <strong>Creem</strong> (pending approval)<br />
                             <strong>3.</strong> Your API key is <strong>automatically activated</strong> with the new plan and rate limits<br />
                             <br />
                             Upgrades, downgrades, and cancellations are all handled automatically.
