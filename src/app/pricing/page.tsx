@@ -63,6 +63,8 @@ export default function PricingPage() {
                     <li><a href="/#features">Features</a></li>
                     <li><a href="/pricing">Pricing</a></li>
                     <li><a href="/docs">Docs</a></li>
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
                     <li><a href="/login" className="btn btn-secondary btn-sm" style={{ border: 'none', background: 'transparent' }}>Login</a></li>
                     <li><a href="/register" className="btn btn-primary btn-sm">Get Started →</a></li>
                 </ul>
@@ -140,7 +142,7 @@ export default function PricingPage() {
                         { q: 'What counts as a "user"?', a: 'Each unique evaluation request to the /verify endpoint counts as one user. Re-evaluations of the same user within 24 hours are not double-counted.' },
                         { q: 'Can I switch plans at any time?', a: 'Yes. Upgrades take effect immediately. Downgrades apply at the end of your current billing cycle.' },
                         { q: 'Is there a free trial?', a: 'We offer free trials on a case-by-case basis. Contact us to discuss your needs.' },
-                        { q: 'What payment methods do you accept?', a: 'We accept all major credit cards, debit cards, and bank transfers through our payment processor Creem.' },
+                        { q: 'What payment methods do you accept?', a: 'We accept all major credit cards and debit cards through our payment processor Creem. (pending approval)' },
                         { q: 'Do you offer annual billing?', a: 'Yes. Contact us for annual pricing with a discount.' },
                     ].map(faq => (
                         <div key={faq.q} className="glass-card" style={{ padding: '20px 24px', marginBottom: '12px' }}>

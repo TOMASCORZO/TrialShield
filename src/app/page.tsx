@@ -11,6 +11,8 @@ export default function HomePage() {
                     <li><a href="/pricing">Pricing</a></li>
                     <li><a href="#api">API</a></li>
                     <li><a href="/docs">Docs</a></li>
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
                     <li><a href="/login" className="btn btn-secondary btn-sm" style={{ border: 'none', background: 'transparent' }}>Login</a></li>
                     <li><a href="/register" className="btn btn-primary btn-sm">Get Started →</a></li>
                 </ul>

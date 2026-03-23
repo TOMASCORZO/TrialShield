@@ -9,6 +9,8 @@ export default function DocsPage() {
                 <ul className="landing-nav-links">
                     <li><a href="/#features">Features</a></li>
                     <li><a href="/docs">Docs</a></li>
+                    <li><a href="/terms">Terms</a></li>
+                    <li><a href="/privacy">Privacy</a></li>
                     <li><a href="/dashboard" className="btn btn-primary btn-sm">Dashboard →</a></li>
                 </ul>
             </nav>
