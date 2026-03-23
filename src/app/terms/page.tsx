@@ -62,7 +62,7 @@ export default function TermsPage() {
                     <p>We may update these terms at any time. We will notify registered users of material changes via email. Continued use of the Service after changes constitutes acceptance of the updated terms.</p>
 
                     <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '32px', marginBottom: '12px' }}>12. Contact</h2>
-                    <p>For questions about these terms, contact us at <a href="mailto:tomas@trialshield.dev" style={{ color: 'var(--color-allow)' }}>tomas@trialshield.dev</a>.</p>
+                    <p>For questions about these terms, contact us at <a href="mailto:tomascorzo1203@gmail.com" style={{ color: 'var(--color-allow)' }}>tomascorzo1203@gmail.com</a>.</p>
                 </div>
             </section>
 

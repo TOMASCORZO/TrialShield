@@ -130,7 +130,7 @@ export default function PrivacyPage() {
                     <p>We may update this Privacy Policy from time to time. We will notify registered users of material changes via email. The &quot;Last updated&quot; date at the top reflects the most recent revision.</p>
 
                     <h2 style={{ fontSize: '20px', fontWeight: 700, color: 'var(--text-primary)', marginTop: '32px', marginBottom: '12px' }}>12. Contact</h2>
-                    <p>For privacy-related questions, data deletion requests, or to exercise your rights, contact us at <a href="mailto:tomas@trialshield.dev" style={{ color: 'var(--color-allow)' }}>tomas@trialshield.dev</a>.</p>
+                    <p>For privacy-related questions, data deletion requests, or to exercise your rights, contact us at <a href="mailto:tomascorzo1203@gmail.com" style={{ color: 'var(--color-allow)' }}>tomascorzo1203@gmail.com</a>.</p>
                 </div>
             </section>
 

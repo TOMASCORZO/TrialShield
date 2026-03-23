@@ -115,7 +115,7 @@ export default function PricingPage() {
                             </ul>
 
                             {plan.name === 'Enterprise' ? (
-                                <a href="mailto:tomas@trialshield.dev" className="btn btn-sm" style={{
+                                <a href="mailto:tomascorzo1203@gmail.com" className="btn btn-sm" style={{
                                     width: '100%', textAlign: 'center', display: 'block',
                                     background: 'var(--bg-tertiary)', border: `1px solid ${plan.color}40`, color: plan.color,
                                 }}>

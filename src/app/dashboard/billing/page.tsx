@@ -259,7 +259,7 @@ export default function BillingPage() {
                             </ul>
 
                             {plan.id === 'enterprise' ? (
-                                <a href="mailto:tomas@trialshield.dev"
+                                <a href="mailto:tomascorzo1203@gmail.com"
                                     className="btn btn-sm"
                                     style={{
                                         width: '100%', textAlign: 'center', display: 'block',
