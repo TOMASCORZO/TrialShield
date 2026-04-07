@@ -1,6 +1,5 @@
 // TrialShield — KYC Session Status
-// GET /api/v1/kyc/session/[id] — Get session status
-// Accessible with API key (client) or with session token (verification page polling)
+// GET /api/v1/kyc/session/[id] — Get session status + verification level
 
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase';
@@ -18,7 +17,7 @@ export async function GET(
     try {
         const { data: session, error } = await supabaseAdmin
             .from('ts_kyc_sessions')
-            .select('id, external_user_id, status, result, device_info, created_at, updated_at, completed_at, expires_at, redirect_url')
+            .select('id, external_user_id, status, verification_level, result, device_info, created_at, updated_at, completed_at, expires_at, redirect_url')
             .eq('id', id)
             .single();
 
@@ -26,7 +25,6 @@ export async function GET(
             return NextResponse.json({ error: 'Session not found' }, { status: 404 });
         }
 
-        // Check expiration
         if (session.status === 'pending' && new Date(session.expires_at) < new Date()) {
             await supabaseAdmin
                 .from('ts_kyc_sessions')
@@ -43,6 +41,7 @@ export async function GET(
         return NextResponse.json({
             sessionId: session.id,
             status: session.status,
+            level: session.verification_level || 'document_face',
             result: session.result,
             redirectUrl: session.redirect_url,
             createdAt: session.created_at,
