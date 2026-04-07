@@ -36,6 +36,9 @@ export default function DashboardLayout({
                     <a href="/dashboard/oauth" id="nav-oauth">
                         <span>🔐</span> Auth Providers
                     </a>
+                    <a href="/dashboard/kyc" id="nav-kyc">
+                        <span>🪪</span> KYC
+                    </a>
                     <a href="/dashboard/stripe" id="nav-stripe">
                         <span>💳</span> Stripe
                     </a>
