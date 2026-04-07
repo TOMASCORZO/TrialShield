@@ -118,9 +118,10 @@ export default function VerifyPage({ params }: { params: Promise<{ id: string }>
         try {
             setProcessingStatus('Loading AI models...');
             faceapi = await import('@vladmandic/face-api');
-            await faceapi.nets.ssdMobilenetv1.loadFromUri('/models');
-            await faceapi.nets.faceLandmark68Net.loadFromUri('/models');
-            await faceapi.nets.faceRecognitionNet.loadFromUri('/models');
+            const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+            await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+            await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
             setModelsLoaded(true);
         } catch (err) {
             console.error('Failed to load face models:', err);
