@@ -444,3 +444,39 @@ CREATE TABLE IF NOT EXISTS ts_polar_payments (
 -- Indexes for Polar tables
 CREATE INDEX IF NOT EXISTS idx_polar_customer ON ts_polar_customers(polar_customer_id);
 CREATE INDEX IF NOT EXISTS idx_polar_payment_customer ON ts_polar_payments(polar_customer_id);
+
+
+-- ═══════════════════════════════════════════════════════════════
+-- SECTION 10: KYC Sessions
+-- ═══════════════════════════════════════════════════════════════
+-- Stores each verification session (document + selfie + risk result).
+-- Raw biometric blobs are purged after the retention window — see migrations/002.
+
+CREATE TABLE IF NOT EXISTS ts_kyc_sessions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    api_key_id UUID REFERENCES ts_api_keys(id) ON DELETE SET NULL,
+    external_user_id TEXT,
+    status TEXT NOT NULL DEFAULT 'pending',
+    verification_level TEXT NOT NULL DEFAULT 'document_face',
+    redirect_url TEXT,
+    metadata JSONB DEFAULT '{}'::jsonb,
+    result JSONB,
+    selfie_hash TEXT,
+    document_front_hash TEXT,
+    selfie_data TEXT,
+    document_front_data TEXT,
+    device_info JSONB,
+    expires_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    completed_at TIMESTAMPTZ
+);
+
+CREATE INDEX IF NOT EXISTS idx_kyc_sessions_api_key ON ts_kyc_sessions(api_key_id);
+CREATE INDEX IF NOT EXISTS idx_kyc_sessions_external_user ON ts_kyc_sessions(external_user_id);
+CREATE INDEX IF NOT EXISTS idx_kyc_sessions_doc_hash
+    ON ts_kyc_sessions(document_front_hash)
+    WHERE document_front_hash IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_kyc_sessions_selfie_hash
+    ON ts_kyc_sessions(selfie_hash)
+    WHERE selfie_hash IS NOT NULL;

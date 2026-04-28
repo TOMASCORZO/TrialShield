@@ -2,16 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
-
-interface BillingInfo {
-    plan: string;
-    subscriptionStatus: string;
-    creemCustomerId?: string;
-    trialEndsAt?: string;
-    totalRequests: number;
-    rateLimit: number;
-    apiKeyId?: string;
-}
+import type { BillingStatus, AccessState } from '@/lib/billing-status';
 
 const PLANS = [
     {
@@ -64,11 +55,110 @@ const PLANS = [
     },
 ];
 
+interface BannerCopy {
+    title: string;
+    body: string;
+    tone: 'success' | 'warning' | 'danger' | 'info';
+}
+
+function bannerForState(state: AccessState, daysLeft: number | null): BannerCopy {
+    switch (state) {
+        case 'no_key':
+            return {
+                title: 'Welcome to TrialShield',
+                body: 'Pick a plan or request a free trial below to activate your account.',
+                tone: 'info',
+            };
+        case 'pending_payment':
+            return {
+                title: 'Activation required',
+                body: 'Your dashboard and API are locked until you subscribe or get a free trial approved.',
+                tone: 'danger',
+            };
+        case 'trial_requested':
+            return {
+                title: 'Trial request received',
+                body: 'Our team is reviewing your free trial request. You will get access as soon as it is approved.',
+                tone: 'warning',
+            };
+        case 'trial_rejected':
+            return {
+                title: 'Trial request denied',
+                body: 'Your free trial request was not approved. You can still subscribe to a paid plan to get instant access.',
+                tone: 'danger',
+            };
+        case 'trial_active':
+            return {
+                title: daysLeft !== null && daysLeft <= 3
+                    ? `Trial ends in ${daysLeft} day${daysLeft === 1 ? '' : 's'}`
+                    : 'Free trial active',
+                body: 'Subscribe before your trial ends to keep using TrialShield without interruption.',
+                tone: daysLeft !== null && daysLeft <= 3 ? 'warning' : 'success',
+            };
+        case 'trial_expired':
+            return {
+                title: 'Trial expired',
+                body: 'Your free trial has ended. Subscribe to restore access to the dashboard and API.',
+                tone: 'danger',
+            };
+        case 'active':
+            return {
+                title: 'Subscription active',
+                body: 'You have full access to the dashboard and API.',
+                tone: 'success',
+            };
+        case 'past_due':
+            return {
+                title: 'Payment failed',
+                body: 'We could not process your last payment. Update your payment method to keep your access.',
+                tone: 'danger',
+            };
+        case 'canceled':
+            return {
+                title: 'Subscription canceled',
+                body: 'Resubscribe at any time to restore access.',
+                tone: 'warning',
+            };
+    }
+}
+
+function toneStyles(tone: BannerCopy['tone']) {
+    switch (tone) {
+        case 'success':
+            return {
+                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02))',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                badgeColor: 'var(--color-allow)',
+            };
+        case 'warning':
+            return {
+                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02))',
+                border: '1px solid rgba(245, 158, 11, 0.2)',
+                badgeColor: 'var(--color-challenge)',
+            };
+        case 'danger':
+            return {
+                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02))',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                badgeColor: 'var(--color-deny)',
+            };
+        case 'info':
+            return {
+                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06))',
+                border: '1px solid rgba(99, 102, 241, 0.15)',
+                badgeColor: 'var(--text-accent)',
+            };
+    }
+}
+
 export default function BillingPage() {
-    const [billing, setBilling] = useState<BillingInfo | null>(null);
+    const [billing, setBilling] = useState<BillingStatus | null>(null);
     const [loading, setLoading] = useState(true);
     const [checkoutLoading, setCheckoutLoading] = useState<string | null>(null);
     const [checkoutError, setCheckoutError] = useState<string | null>(null);
+    const [trialNote, setTrialNote] = useState('');
+    const [trialLoading, setTrialLoading] = useState(false);
+    const [trialError, setTrialError] = useState<string | null>(null);
 
     useEffect(() => { fetchBilling(); }, []);
 
@@ -77,24 +167,47 @@ export default function BillingPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) return;
 
-            const res = await fetch('/api/v1/keys', {
-                headers: { 'Authorization': `Bearer ${session.access_token}` },
+            const res = await fetch('/api/v1/billing/status', {
+                headers: { Authorization: `Bearer ${session.access_token}` },
             });
-            const data = await res.json();
-            const key = data.keys?.[0];
-            if (key) {
-                setBilling({
-                    plan: key.plan || 'pending',
-                    subscriptionStatus: key.subscription_status || 'pending',
-                    creemCustomerId: key.creem_customer_id,
-                    trialEndsAt: key.trial_ends_at,
-                    totalRequests: key.total_requests || 0,
-                    rateLimit: key.rate_limit || 0,
-                    apiKeyId: key.id,
-                });
+            if (res.ok) {
+                const data: BillingStatus = await res.json();
+                setBilling(data);
             }
         } catch { }
         finally { setLoading(false); }
+    }
+
+    async function requestTrial() {
+        setTrialLoading(true);
+        setTrialError(null);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                setTrialError('Not authenticated. Please log in again.');
+                return;
+            }
+            const res = await fetch('/api/v1/billing/trial-request', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${session.access_token}`,
+                },
+                body: JSON.stringify({ note: trialNote }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                setTrialError(data.error || 'Failed to submit trial request');
+                return;
+            }
+            if (data.status) setBilling(data.status);
+            setTrialNote('');
+        } catch (err) {
+            console.error('Trial request error:', err);
+            setTrialError('Network error. Please try again.');
+        } finally {
+            setTrialLoading(false);
+        }
     }
 
     async function handleCheckout(planId: string) {
@@ -111,7 +224,7 @@ export default function BillingPage() {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${session.access_token}`,
+                    Authorization: `Bearer ${session.access_token}`,
                 },
                 body: JSON.stringify({ plan: planId }),
             });
@@ -144,12 +257,15 @@ export default function BillingPage() {
         );
     }
 
-    const isPaid = billing && !['free_trial', 'pending'].includes(billing.plan);
-    const isActive = billing?.subscriptionStatus === 'active';
-    const isPending = billing?.plan === 'pending' || billing?.subscriptionStatus === 'pending';
-    const trialDaysLeft = billing?.trialEndsAt && billing.plan === 'free_trial'
+    const accessState: AccessState = billing?.accessState || 'no_key';
+    const trialDaysLeft = billing?.trialEndsAt
         ? Math.max(0, Math.ceil((new Date(billing.trialEndsAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)))
         : null;
+    const banner = bannerForState(accessState, trialDaysLeft);
+    const bannerStyle = toneStyles(banner.tone);
+    const showTrialRequest = accessState === 'no_key' || accessState === 'pending_payment';
+    const urgent = accessState === 'trial_expired' || accessState === 'past_due' || accessState === 'canceled';
+    const trialUrgent = accessState === 'trial_active' && trialDaysLeft !== null && trialDaysLeft <= 3;
 
     return (
         <div className="animate-fade-in">
@@ -160,52 +276,142 @@ export default function BillingPage() {
                 </div>
             </div>
 
-            {/* Current plan status */}
-            <div className="glass-card" style={{
-                padding: '24px', marginBottom: '24px',
-                background: isPaid && isActive
-                    ? 'linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02))'
-                    : isPending
-                        ? 'linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02))'
-                        : 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02))',
-                border: isPaid && isActive
-                    ? '1px solid rgba(16, 185, 129, 0.2)'
-                    : isPending
-                        ? '1px solid rgba(239, 68, 68, 0.2)'
-                        : '1px solid rgba(245, 158, 11, 0.2)',
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <div>
-                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>
-                            Current Plan
-                        </div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, textTransform: 'capitalize' }}>
-                            {isPending ? 'No Active Plan' : billing?.plan?.replace('_', ' ') || 'No Plan'}
-                        </div>
-                        {isPending && (
-                            <div style={{ fontSize: '13px', color: 'var(--color-deny)', marginTop: '4px' }}>
-                                Payment required to activate your API key
-                            </div>
-                        )}
-                        {trialDaysLeft !== null && (
-                            <div style={{ fontSize: '13px', color: trialDaysLeft < 7 ? 'var(--color-deny)' : 'var(--color-challenge)', marginTop: '4px' }}>
-                                {trialDaysLeft} days remaining in free trial
-                            </div>
-                        )}
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                        <span className={`badge ${isActive ? 'badge-allow' : isPending ? 'badge-deny' : billing?.subscriptionStatus === 'trialing' ? 'badge-allow' : 'badge-deny'}`}
-                            style={{ fontSize: '12px', padding: '6px 14px' }}>
-                            {isPending ? 'Payment Required' :
-                                billing?.subscriptionStatus === 'trialing' ? 'Trial Active' :
-                                    billing?.subscriptionStatus || 'Unknown'}
-                        </span>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '8px' }}>
-                            {billing?.totalRequests?.toLocaleString() || 0} total requests
+            {/* Urgency hero for expired / past_due / canceled */}
+            {urgent && (
+                <div className="glass-card animate-fade-in" style={{
+                    padding: '32px',
+                    marginBottom: '24px',
+                    background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))',
+                    border: '2px solid rgba(239,68,68,0.4)',
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', flexWrap: 'wrap' }}>
+                        <div style={{ fontSize: '48px', lineHeight: 1 }}>🚫</div>
+                        <div style={{ flex: 1, minWidth: '260px' }}>
+                            <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--color-deny)' }}>
+                                {accessState === 'trial_expired' && 'Your free trial has ended'}
+                                {accessState === 'past_due' && 'Your last payment failed'}
+                                {accessState === 'canceled' && 'Your subscription is canceled'}
+                            </h2>
+                            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '16px', maxWidth: '560px', lineHeight: 1.6 }}>
+                                {accessState === 'trial_expired' && 'Your API key is paused and your dashboard data is read-only. Subscribe to a paid plan below to restore full access immediately.'}
+                                {accessState === 'past_due' && 'We could not charge your card on the last billing cycle. Subscribe again or update your payment method to avoid losing access. Your data is safe.'}
+                                {accessState === 'canceled' && 'Your API key is paused. Subscribe again to restore the same key and continue where you left off — no data is lost.'}
+                            </p>
+                            <a href="#plans" className="btn btn-primary"
+                                style={{ background: 'var(--color-deny)', borderColor: 'var(--color-deny)' }}>
+                                Choose a plan ↓
+                            </a>
                         </div>
                     </div>
                 </div>
+            )}
+
+            {/* Trial about-to-expire countdown hero */}
+            {trialUrgent && (
+                <div className="glass-card animate-fade-in" style={{
+                    padding: '24px 28px',
+                    marginBottom: '24px',
+                    background: 'linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.02))',
+                    border: '2px solid rgba(245,158,11,0.4)',
+                    display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap',
+                }}>
+                    <div style={{
+                        fontSize: '64px', fontWeight: 800,
+                        color: 'var(--color-challenge)', lineHeight: 1,
+                        minWidth: '80px', textAlign: 'center',
+                    }}>
+                        {trialDaysLeft}
+                    </div>
+                    <div style={{ flex: 1, minWidth: '240px' }}>
+                        <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px' }}>
+                            day{trialDaysLeft === 1 ? '' : 's'} left in your trial
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                            Subscribe before your trial ends to keep your API key active without interruption.
+                        </div>
+                    </div>
+                    <a href="#plans" className="btn btn-primary"
+                        style={{ background: 'var(--color-challenge)', borderColor: 'var(--color-challenge)' }}>
+                        Subscribe →
+                    </a>
+                </div>
+            )}
+
+            {/* Status banner */}
+            <div className="glass-card" style={{
+                padding: '24px', marginBottom: '24px',
+                background: bannerStyle.background,
+                border: bannerStyle.border,
+            }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
+                    <div>
+                        <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-muted)', marginBottom: '4px' }}>
+                            {banner.title}
+                        </div>
+                        <div style={{ fontSize: '20px', fontWeight: 700, textTransform: 'capitalize' }}>
+                            {billing?.plan?.replace('_', ' ') || 'No plan'}
+                        </div>
+                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', marginTop: '6px', maxWidth: '600px' }}>
+                            {banner.body}
+                        </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                        <span className="badge" style={{
+                            fontSize: '12px', padding: '6px 14px',
+                            color: bannerStyle.badgeColor,
+                            border: `1px solid ${bannerStyle.badgeColor}40`,
+                            background: 'transparent',
+                        }}>
+                            {accessState.replace(/_/g, ' ')}
+                        </span>
+                    </div>
+                </div>
             </div>
+
+            {/* Trial request card — only show when relevant */}
+            {showTrialRequest && (
+                <div className="glass-card" style={{ padding: '24px', marginBottom: '24px' }}>
+                    <h3 style={{ fontSize: '16px', marginBottom: '8px' }}>Request a free trial</h3>
+                    <p style={{ fontSize: '13px', color: 'var(--text-secondary)', marginBottom: '16px' }}>
+                        Tell us a bit about your use case. Trials are reviewed manually and approved within 24 hours.
+                    </p>
+                    <textarea
+                        value={trialNote}
+                        onChange={e => setTrialNote(e.target.value.slice(0, 500))}
+                        placeholder="What are you building? Expected volume?"
+                        rows={3}
+                        style={{ width: '100%', marginBottom: '12px', resize: 'vertical' }}
+                    />
+                    {trialError && (
+                        <div style={{
+                            padding: '10px 14px', marginBottom: '12px',
+                            background: 'rgba(239, 68, 68, 0.08)',
+                            border: '1px solid rgba(239, 68, 68, 0.2)',
+                            borderRadius: '8px', color: 'var(--color-deny)', fontSize: '13px',
+                        }}>
+                            {trialError}
+                        </div>
+                    )}
+                    <button
+                        onClick={requestTrial}
+                        disabled={trialLoading}
+                        className="btn btn-primary btn-sm"
+                        style={{ cursor: trialLoading ? 'wait' : 'pointer' }}
+                    >
+                        {trialLoading ? 'Submitting...' : 'Request Free Trial'}
+                    </button>
+                </div>
+            )}
+
+            {/* Trial active info */}
+            {accessState === 'trial_active' && trialDaysLeft !== null && (
+                <div className="glass-card" style={{ padding: '20px 24px', marginBottom: '24px', background: 'var(--bg-secondary)' }}>
+                    <div style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
+                        <strong>{trialDaysLeft}</strong> day{trialDaysLeft === 1 ? '' : 's'} remaining in your free trial.
+                        Subscribe below to keep your access active when the trial ends.
+                    </div>
+                </div>
+            )}
 
             {/* Checkout error */}
             {checkoutError && (
@@ -221,7 +427,7 @@ export default function BillingPage() {
             )}
 
             {/* Plan cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px' }}>
+            <div id="plans" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '20px', marginBottom: '24px', scrollMarginTop: '24px' }}>
                 {PLANS.map(plan => {
                     const isCurrent = billing?.plan === plan.id;
                     const isLoading = checkoutLoading === plan.id;
@@ -269,7 +475,7 @@ export default function BillingPage() {
                                     }}>
                                     Contact Sales
                                 </a>
-                            ) : isCurrent ? (
+                            ) : isCurrent && billing?.subscriptionStatus === 'active' ? (
                                 <button className="btn btn-sm" disabled
                                     style={{ width: '100%', opacity: 0.5 }}>
                                     Current Plan
@@ -285,7 +491,7 @@ export default function BillingPage() {
                                         borderColor: plan.color,
                                         cursor: isLoading ? 'wait' : 'pointer',
                                     }}>
-                                    {isLoading ? 'Redirecting...' : isPaid ? 'Switch Plan' : 'Subscribe'}
+                                    {isLoading ? 'Redirecting...' : 'Subscribe'}
                                 </button>
                             )}
                         </div>
@@ -295,7 +501,7 @@ export default function BillingPage() {
 
             {/* How payment activation works */}
             <div className="glass-card" style={{
-                padding: '20px 24px', marginBottom: '24px',
+                padding: '20px 24px',
                 background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06))',
                 border: '1px solid rgba(99, 102, 241, 0.15)',
             }}>
@@ -303,35 +509,11 @@ export default function BillingPage() {
                     <span style={{ fontSize: '28px' }}>⚡</span>
                     <div>
                         <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>
-                            How Payment Activation Works
+                            How activation works
                         </div>
                         <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                            <strong>1.</strong> Click &quot;Subscribe&quot; on your chosen plan<br />
-                            <strong>2.</strong> Complete the secure payment via <strong>Creem</strong> (pending approval)<br />
-                            <strong>3.</strong> Your API key is <strong>automatically activated</strong> with the new plan and rate limits<br />
-                            <br />
-                            Upgrades, downgrades, and cancellations are all handled automatically.
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Usage stats */}
-            <div className="glass-card" style={{ padding: '24px' }}>
-                <h3 style={{ fontSize: '16px', marginBottom: '20px' }}>Usage Summary</h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' }}>
-                    <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Total Requests</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800 }}>{billing?.totalRequests?.toLocaleString() || 0}</div>
-                    </div>
-                    <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Rate Limit</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800 }}>{billing?.rateLimit || 0}/min</div>
-                    </div>
-                    <div style={{ padding: '16px', background: 'var(--bg-secondary)', borderRadius: '10px' }}>
-                        <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '4px' }}>Plan</div>
-                        <div style={{ fontSize: '24px', fontWeight: 800, textTransform: 'capitalize' }}>
-                            {billing?.plan?.replace('_', ' ') || 'None'}
+                            <strong>Paid plan:</strong> Click &quot;Subscribe&quot;, complete payment via Creem, and your dashboard + API unlock automatically.<br />
+                            <strong>Free trial:</strong> Submit a request above. We review each one manually so we can be sure of fit. Approval usually takes under 24 hours.
                         </div>
                     </div>
                 </div>

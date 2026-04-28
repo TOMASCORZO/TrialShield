@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import AuthGuard from './AuthGuard';
 import LogoutButton from './LogoutButton';
+import SubscriptionGate from './SubscriptionGate';
+import AdminLink from './AdminLink';
 
 export const metadata: Metadata = {
     title: 'Dashboard — TrialShield',
@@ -48,6 +50,7 @@ export default function DashboardLayout({
                     <a href="/dashboard/settings" id="nav-settings">
                         <span>⚙️</span> Settings
                     </a>
+                    <AdminLink />
                 </nav>
 
                 <div className="sidebar-footer">
@@ -64,7 +67,7 @@ export default function DashboardLayout({
 
             {/* ─── Main Content ──────────────────────────────── */}
             <main className="main-content">
-                {children}
+                <SubscriptionGate>{children}</SubscriptionGate>
             </main>
         </div>
         </AuthGuard>

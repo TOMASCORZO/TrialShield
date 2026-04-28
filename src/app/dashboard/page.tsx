@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
+import OnboardingBanner from './OnboardingBanner';
 
 interface Stats {
     totalEvaluations: number;
@@ -65,6 +66,7 @@ export default function DashboardPage() {
 
     return (
         <div className="animate-fade-in">
+            <OnboardingBanner />
             <div className="page-header">
                 <div>
                     <h1>Dashboard</h1>

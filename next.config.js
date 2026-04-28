@@ -4,16 +4,8 @@ const nextConfig = {
     experimental: {
         serverComponentsExternalPackages: [],
     },
-    headers: async () => [
-        {
-            source: '/api/:path*',
-            headers: [
-                { key: 'Access-Control-Allow-Origin', value: '*' },
-                { key: 'Access-Control-Allow-Methods', value: 'GET, POST, PUT, DELETE, OPTIONS' },
-                { key: 'Access-Control-Allow-Headers', value: 'Content-Type, Authorization, X-API-Key' },
-            ],
-        },
-    ],
+    // CORS is handled in src/middleware.ts so it can be scoped per-route
+    // (dashboard endpoints are restricted, public endpoints stay open).
 };
 
 module.exports = nextConfig;

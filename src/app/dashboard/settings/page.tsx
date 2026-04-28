@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 export default function SettingsPage() {
     const [keys, setKeys] = useState<any[]>([]);
@@ -10,11 +11,17 @@ export default function SettingsPage() {
 
     useEffect(() => { fetchKeys(); }, []);
 
+    async function authHeaders(): Promise<HeadersInit | null> {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return null;
+        return { 'Authorization': `Bearer ${session.access_token}` };
+    }
+
     async function fetchKeys() {
         try {
-            const res = await fetch('/api/v1/keys', {
-                headers: { 'X-API-Key': process.env.NEXT_PUBLIC_TRIALSHIELD_TEST_KEY || 'master' },
-            });
+            const headers = await authHeaders();
+            if (!headers) return;
+            const res = await fetch('/api/v1/keys', { headers });
             const data = await res.json();
             setKeys(data.keys || []);
         } catch { }
@@ -24,12 +31,11 @@ export default function SettingsPage() {
     async function createKey() {
         if (!newKeyName) return;
         try {
+            const headers = await authHeaders();
+            if (!headers) return;
             const res = await fetch('/api/v1/keys', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-API-Key': process.env.NEXT_PUBLIC_TRIALSHIELD_TEST_KEY || 'master',
-                },
+                headers: { ...headers, 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name: newKeyName }),
             });
             const data = await res.json();

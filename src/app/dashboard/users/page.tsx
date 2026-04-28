@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 
 interface UserData {
     id: string;
@@ -28,7 +29,11 @@ export default function UsersPage() {
 
     async function fetchUsers() {
         try {
-            const res = await fetch('/api/v1/dashboard/users');
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) return;
+            const res = await fetch('/api/v1/dashboard/users', {
+                headers: { 'Authorization': `Bearer ${session.access_token}` },
+            });
             const data = await res.json();
             if (data.users) {
                 setUsers(data.users);
