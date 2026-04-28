@@ -145,6 +145,7 @@ export default function PrivacyPage() {
             title="Privacy Policy"
             lastUpdated="March 22, 2026"
             sections={SECTIONS}
+            current="privacy"
         />
     );
 }

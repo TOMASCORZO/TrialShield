@@ -1,7 +1,7 @@
 // Shared layout for /terms and /privacy. Renders heading + numbered sections
 // using the marketing design tokens.
 
-import TopNav from './TopNav';
+import TopNav, { type NavCurrent } from './TopNav';
 import Footer from './Footer';
 
 export interface LegalSection {
@@ -15,12 +15,13 @@ interface LegalLayoutProps {
     lastUpdated: string;
     intro?: React.ReactNode;
     sections: LegalSection[];
+    current?: NavCurrent;
 }
 
-export default function LegalLayout({ eyebrow, title, lastUpdated, intro, sections }: LegalLayoutProps) {
+export default function LegalLayout({ eyebrow, title, lastUpdated, intro, sections, current }: LegalLayoutProps) {
     return (
         <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
-            <TopNav />
+            <TopNav current={current} />
 
             <section style={{ padding: '64px 32px 24px', borderBottom: '1px solid var(--line)' }}>
                 <div style={{ maxWidth: 760, margin: '0 auto' }}>

@@ -3,14 +3,18 @@
 import Logo from './Logo';
 import { ArrowIcon } from './Icon';
 
+export type NavCurrent = 'landing' | 'features' | 'pricing' | 'docs' | 'terms' | 'privacy';
+
 interface TopNavProps {
-    current?: 'landing' | 'features' | 'pricing' | 'docs' | 'customers';
+    current?: NavCurrent;
 }
 
-const items: { id: TopNavProps['current']; label: string; href: string }[] = [
+const items: { id: NavCurrent; label: string; href: string }[] = [
     { id: 'features', label: 'Platform', href: '/#platform' },
     { id: 'pricing', label: 'Pricing', href: '/pricing' },
     { id: 'docs', label: 'Docs', href: '/docs' },
+    { id: 'terms', label: 'Terms', href: '/terms' },
+    { id: 'privacy', label: 'Privacy', href: '/privacy' },
 ];
 
 export default function TopNav({ current }: TopNavProps) {

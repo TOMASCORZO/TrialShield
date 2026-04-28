@@ -91,6 +91,7 @@ export default function TermsPage() {
             title="Terms of Service"
             lastUpdated="March 22, 2026"
             sections={SECTIONS}
+            current="terms"
         />
     );
 }
