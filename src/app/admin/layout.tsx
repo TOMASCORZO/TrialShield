@@ -16,16 +16,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                         🛡️ <span className="gradient-text">TrialShield</span>
                     </a>
                     <div style={{
-                        padding: '6px 12px',
+                        padding: '4px 10px',
                         fontSize: '11px',
-                        fontWeight: 700,
-                        color: '#ec4899',
-                        letterSpacing: '1px',
+                        fontWeight: 500,
+                        color: 'var(--accent-deep)',
+                        letterSpacing: '0.06em',
                         textTransform: 'uppercase',
-                        background: 'rgba(236, 72, 153, 0.08)',
-                        borderRadius: '6px',
+                        fontFamily: 'var(--font-mono)',
+                        background: 'var(--accent-soft)',
+                        borderRadius: '999px',
                         marginBottom: '20px',
-                        border: '1px solid rgba(236, 72, 153, 0.2)',
+                        border: '1px solid var(--accent-line)',
                         display: 'inline-block',
                     }}>
                         Admin

@@ -90,29 +90,29 @@ export default function KycDashboardPage() {
     }
 
     const statusBadge = (status: string, result?: KycResult) => {
-        const map: Record<string, { bg: string; color: string; label: string }> = {
-            pending: { bg: 'rgba(245,158,11,0.1)', color: '#f59e0b', label: 'Pending' },
-            expired: { bg: 'rgba(113,113,122,0.1)', color: '#71717a', label: 'Expired' },
+        const map: Record<string, { bg: string; color: string; border: string; label: string }> = {
+            pending: { bg: 'var(--amber-soft)', color: 'var(--amber)', border: 'var(--amber-line)', label: 'Pending' },
+            expired: { bg: 'var(--bg-sunken)', color: 'var(--ink-3)', border: 'var(--line)', label: 'Expired' },
         };
         if (status === 'completed') {
             const d = result?.decision;
-            if (d === 'VERIFIED') return <span style={{ ...badgeStyle, background: 'rgba(16,185,129,0.1)', color: '#10b981' }}>VERIFIED</span>;
-            if (d === 'REVIEW') return <span style={{ ...badgeStyle, background: 'rgba(245,158,11,0.1)', color: '#f59e0b' }}>REVIEW</span>;
-            return <span style={{ ...badgeStyle, background: 'rgba(239,68,68,0.1)', color: '#ef4444' }}>REJECTED</span>;
+            if (d === 'VERIFIED') return <span style={{ ...badgeStyle, background: 'var(--green-soft)', color: 'var(--green)', border: '1px solid var(--green-line)' }}>VERIFIED</span>;
+            if (d === 'REVIEW') return <span style={{ ...badgeStyle, background: 'var(--amber-soft)', color: 'var(--amber)', border: '1px solid var(--amber-line)' }}>REVIEW</span>;
+            return <span style={{ ...badgeStyle, background: 'var(--red-soft)', color: 'var(--red)', border: '1px solid var(--red-line)' }}>REJECTED</span>;
         }
         const c = map[status] || map.pending;
-        return <span style={{ ...badgeStyle, background: c.bg, color: c.color }}>{c.label}</span>;
+        return <span style={{ ...badgeStyle, background: c.bg, color: c.color, border: `1px solid ${c.border}` }}>{c.label}</span>;
     };
 
     const badgeStyle: React.CSSProperties = {
-        padding: '4px 10px', borderRadius: '6px',
-        fontSize: '11px', fontWeight: 700, textTransform: 'uppercase',
+        padding: '3px 10px', borderRadius: '999px',
+        fontSize: '11px', fontWeight: 500, textTransform: 'uppercase',
+        fontFamily: 'var(--font-mono)', letterSpacing: '0.02em',
     };
 
     const levelBadge = (level?: string) => {
-        const colors: Record<string, string> = { document_only: '#6366f1', document_face: '#8b5cf6', full: '#ec4899' };
         return (
-            <span style={{ ...badgeStyle, background: `${colors[level || 'document_face']}15`, color: colors[level || 'document_face'] }}>
+            <span style={{ ...badgeStyle, background: 'var(--accent-soft)', color: 'var(--accent-deep)', border: '1px solid var(--accent-line)' }}>
                 {(level || 'document_face').replace(/_/g, ' ')}
             </span>
         );
@@ -139,11 +139,11 @@ export default function KycDashboardPage() {
             {/* Stats */}
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '12px', marginBottom: '24px' }}>
                 {[
-                    { label: 'Total', value: sessions.length, color: '#6366f1' },
-                    { label: 'Verified', value: verifiedCount, color: '#10b981' },
-                    { label: 'Review', value: reviewCount, color: '#f59e0b' },
-                    { label: 'Rejected', value: rejectedCount, color: '#ef4444' },
-                    { label: 'Pending', value: pendingCount, color: '#71717a' },
+                    { label: 'Total', value: sessions.length, color: 'var(--ink)' },
+                    { label: 'Verified', value: verifiedCount, color: 'var(--green)' },
+                    { label: 'Review', value: reviewCount, color: 'var(--amber)' },
+                    { label: 'Rejected', value: rejectedCount, color: 'var(--red)' },
+                    { label: 'Pending', value: pendingCount, color: 'var(--ink-3)' },
                 ].map(s => (
                     <div key={s.label} className="glass-card" style={{ padding: '14px', textAlign: 'center' }}>
                         <div style={{ fontSize: '24px', fontWeight: 800, color: s.color }}>{s.value}</div>
@@ -155,8 +155,8 @@ export default function KycDashboardPage() {
             {/* Create Session */}
             <div className="glass-card" style={{
                 padding: '24px', marginBottom: '24px',
-                background: 'linear-gradient(135deg, rgba(99,102,241,0.06), rgba(168,85,247,0.06))',
-                border: '1px solid rgba(99,102,241,0.15)',
+                background: 'var(--accent-soft)',
+                border: '1px solid var(--accent-line)',
             }}>
                 <h3 style={{ fontSize: '16px', fontWeight: 700, marginBottom: '16px' }}>Create Verification Session</h3>
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr auto auto', gap: '12px', alignItems: 'end' }}>
@@ -244,15 +244,15 @@ export default function KycDashboardPage() {
                                 </td>
                                 <td style={{ padding: '10px 14px' }}>
                                     {s.result?.signals?.length ? (
-                                        <span style={{ fontSize: '12px', color: '#ef4444' }}>{s.result.signals.length}</span>
+                                        <span style={{ fontSize: '12px', color: 'var(--red)' }}>{s.result.signals.length}</span>
                                     ) : s.status === 'completed' ? (
-                                        <span style={{ fontSize: '12px', color: '#10b981' }}>0</span>
+                                        <span style={{ fontSize: '12px', color: 'var(--green)' }}>0</span>
                                     ) : <span style={{ color: 'var(--text-muted)' }}>—</span>}
                                 </td>
                                 <td style={{ padding: '10px 14px', color: 'var(--text-muted)', fontSize: '12px' }}>{new Date(s.created_at).toLocaleDateString()}</td>
                                 <td style={{ padding: '10px 14px' }}>
                                     {s.status === 'completed' && (
-                                        <span style={{ fontSize: '11px', color: '#6366f1', fontWeight: 600 }}>Details →</span>
+                                        <span style={{ fontSize: '11px', color: 'var(--accent)', fontWeight: 600 }}>Details →</span>
                                     )}
                                 </td>
                             </tr>

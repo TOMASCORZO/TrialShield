@@ -117,18 +117,13 @@ export default function AdminTrialsPage() {
             </div>
 
             {/* Filter pills */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '20px' }}>
+            <div style={{ display: 'flex', gap: '6px', marginBottom: '20px' }}>
                 {(['pending', 'all'] as Filter[]).map(f => (
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className="btn btn-sm"
-                        style={{
-                            background: filter === f ? 'var(--text-accent)' : 'var(--bg-secondary)',
-                            color: filter === f ? 'white' : 'var(--text-secondary)',
-                            border: '1px solid var(--border-subtle)',
-                            textTransform: 'capitalize',
-                        }}
+                        className={`btn btn-sm ${filter === f ? 'btn-primary' : 'btn-secondary'}`}
+                        style={{ textTransform: 'capitalize' }}
                     >
                         {f === 'pending' ? `Pending (${requests.length})` : f}
                     </button>
@@ -139,11 +134,12 @@ export default function AdminTrialsPage() {
             {toast && (
                 <div style={{
                     position: 'fixed', top: '24px', right: '24px', zIndex: 100,
-                    padding: '14px 20px',
-                    background: toast.kind === 'success' ? 'rgba(16,185,129,0.95)' : 'rgba(239,68,68,0.95)',
-                    color: 'white', borderRadius: '10px',
-                    fontWeight: 600, fontSize: '14px',
-                    boxShadow: '0 12px 32px rgba(0,0,0,0.3)',
+                    padding: '12px 18px',
+                    background: toast.kind === 'success' ? 'var(--green)' : 'var(--red)',
+                    color: '#fff', borderRadius: 'var(--radius-md)',
+                    fontWeight: 500, fontSize: '14px',
+                    boxShadow: 'var(--shadow-lg)',
+                    letterSpacing: '-0.005em',
                 }}>
                     {toast.message}
                 </div>
@@ -152,10 +148,10 @@ export default function AdminTrialsPage() {
             {/* Error banner */}
             {error && (
                 <div style={{
-                    padding: '14px 20px', marginBottom: '20px',
-                    background: 'rgba(239,68,68,0.08)',
-                    border: '1px solid rgba(239,68,68,0.2)',
-                    borderRadius: '12px', color: 'var(--color-deny)', fontSize: '14px',
+                    padding: '12px 18px', marginBottom: '20px',
+                    background: 'var(--red-soft)',
+                    border: '1px solid var(--red-line)',
+                    borderRadius: 'var(--radius-md)', color: 'var(--red)', fontSize: '14px',
                 }}>
                     {error}
                 </div>
@@ -213,8 +209,8 @@ export default function AdminTrialsPage() {
                                                 <button
                                                     className="btn btn-sm"
                                                     style={{
-                                                        background: 'var(--color-allow)', color: 'white',
-                                                        border: 'none', marginRight: '6px',
+                                                        background: 'var(--green)', color: '#fff',
+                                                        borderColor: 'var(--green)', marginRight: '6px',
                                                     }}
                                                     disabled={isBusy}
                                                     onClick={() => { setApproveTarget(req); setDuration(14); }}
@@ -222,12 +218,8 @@ export default function AdminTrialsPage() {
                                                     {isBusy ? '…' : 'Approve'}
                                                 </button>
                                                 <button
-                                                    className="btn btn-sm"
-                                                    style={{
-                                                        background: 'transparent',
-                                                        border: '1px solid var(--color-deny)',
-                                                        color: 'var(--color-deny)',
-                                                    }}
+                                                    className="btn btn-sm btn-secondary"
+                                                    style={{ color: 'var(--red)', borderColor: 'var(--red-line)' }}
                                                     disabled={isBusy}
                                                     onClick={() => reject(req)}
                                                 >
@@ -273,13 +265,8 @@ export default function AdminTrialsPage() {
                                     <button
                                         key={d}
                                         onClick={() => setDuration(d)}
-                                        className="btn btn-sm"
-                                        style={{
-                                            background: duration === d ? 'var(--text-accent)' : 'var(--bg-secondary)',
-                                            color: duration === d ? 'white' : 'var(--text-secondary)',
-                                            border: '1px solid var(--border-subtle)',
-                                            minWidth: '64px',
-                                        }}
+                                        className={`btn btn-sm ${duration === d ? 'btn-primary' : 'btn-secondary'}`}
+                                        style={{ minWidth: '72px', justifyContent: 'center' }}
                                     >
                                         {d} days
                                     </button>
@@ -290,11 +277,11 @@ export default function AdminTrialsPage() {
                         {approveTarget.trial_request_note && (
                             <div style={{
                                 padding: '12px 14px', marginBottom: '20px',
-                                background: 'var(--bg-secondary)', borderRadius: '8px',
-                                fontSize: '13px', color: 'var(--text-secondary)',
-                                borderLeft: '3px solid var(--text-accent)',
+                                background: 'var(--bg-sunken)', borderRadius: 'var(--radius-md)',
+                                fontSize: '13px', color: 'var(--ink-2)',
+                                borderLeft: '3px solid var(--accent)',
                             }}>
-                                <div style={{ fontSize: '11px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '4px', letterSpacing: '0.5px' }}>
+                                <div style={{ fontSize: '11px', fontWeight: 500, color: 'var(--ink-3)', marginBottom: '6px', letterSpacing: '0.06em', fontFamily: 'var(--font-mono)' }}>
                                     USER NOTE
                                 </div>
                                 {approveTarget.trial_request_note}
@@ -311,9 +298,9 @@ export default function AdminTrialsPage() {
                             </button>
                             <button
                                 onClick={() => approve(approveTarget, duration)}
-                                className="btn btn-primary btn-sm"
+                                className="btn btn-sm"
                                 disabled={pendingId === approveTarget.id}
-                                style={{ background: 'var(--color-allow)', borderColor: 'var(--color-allow)' }}
+                                style={{ background: 'var(--green)', color: '#fff', borderColor: 'var(--green)' }}
                             >
                                 {pendingId === approveTarget.id ? 'Approving…' : `Approve for ${duration} days`}
                             </button>

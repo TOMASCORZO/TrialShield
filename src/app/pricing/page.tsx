@@ -73,7 +73,7 @@ export default function PricingPage() {
                             height: '6px',
                             appearance: 'none',
                             WebkitAppearance: 'none',
-                            background: `linear-gradient(to right, #10b981 ${(tierIndex / (TIERS.length - 1)) * 100}%, rgba(255,255,255,0.1) ${(tierIndex / (TIERS.length - 1)) * 100}%)`,
+                            background: `linear-gradient(to right, var(--accent) ${(tierIndex / (TIERS.length - 1)) * 100}%, var(--line) ${(tierIndex / (TIERS.length - 1)) * 100}%)`,
                             borderRadius: '8px',
                             outline: 'none',
                             cursor: 'pointer',
@@ -110,8 +110,8 @@ export default function PricingPage() {
                             <span style={{ fontSize: '22px', fontWeight: 700 }}>Free</span>
                             <span style={{
                                 fontSize: '11px', fontWeight: 700,
-                                background: 'rgba(16, 185, 129, 0.15)',
-                                color: '#10b981',
+                                background: 'var(--accent-soft)',
+                                color: 'var(--accent)',
                                 padding: '2px 8px',
                                 borderRadius: '4px',
                                 letterSpacing: '0.5px',
@@ -150,7 +150,7 @@ export default function PricingPage() {
                                 'Community support',
                             ].map(f => (
                                 <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ color: '#10b981' }}>✓</span> {f}
+                                    <span style={{ color: 'var(--accent)' }}>✓</span> {f}
                                 </li>
                             ))}
                         </ul>
@@ -159,11 +159,11 @@ export default function PricingPage() {
                     {/* ── Pro ───────────────────────────────────── */}
                     <div className="glass-card" style={{
                         padding: '32px',
-                        border: '2px solid #10b981',
+                        border: '2px solid var(--accent)',
                         position: 'relative',
                     }}>
                         <div style={{ fontSize: '22px', fontWeight: 700, marginBottom: '8px' }}>
-                            Pro <span style={{ color: '#10b981' }}>Plus</span>
+                            Pro <span style={{ color: 'var(--accent)' }}>Plus</span>
                         </div>
                         <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '20px' }}>
                             Everything you need starting at
@@ -181,7 +181,7 @@ export default function PricingPage() {
                         ) : (
                             <>
                                 <div style={{ marginBottom: '4px' }}>
-                                    <span style={{ fontSize: '42px', fontWeight: 800, color: '#10b981' }}>
+                                    <span style={{ fontSize: '42px', fontWeight: 800, color: 'var(--accent)' }}>
                                         ${proPrice?.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
                                     </span>
                                     <span style={{ fontSize: '15px', color: 'var(--text-muted)' }}> /month for </span>
@@ -196,8 +196,8 @@ export default function PricingPage() {
 
                         <a href="/register" className="btn btn-primary btn-sm" style={{
                             width: '100%', textAlign: 'center', display: 'block',
-                            background: '#10b981',
-                            borderColor: '#10b981',
+                            background: 'var(--accent)',
+                            borderColor: 'var(--accent)',
                             fontWeight: 600,
                             marginBottom: '28px',
                         }}>
@@ -217,7 +217,7 @@ export default function PricingPage() {
                                 'Priority support',
                             ].map(f => (
                                 <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                    <span style={{ color: '#10b981' }}>✓</span> {f}
+                                    <span style={{ color: 'var(--accent)' }}>✓</span> {f}
                                 </li>
                             ))}
                         </ul>
@@ -228,7 +228,7 @@ export default function PricingPage() {
                             padding: '16px',
                             background: 'rgba(16, 185, 129, 0.06)',
                             borderRadius: 'var(--radius-sm)',
-                            border: '1px solid rgba(16, 185, 129, 0.15)',
+                            border: '1px solid var(--accent-soft)',
                         }}>
                             <div style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '8px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
                                 Per-unit pricing
@@ -316,7 +316,7 @@ export default function PricingPage() {
                                             <span>{row.icon}</span>
                                             <span style={{ fontWeight: 600 }}>{row.name}</span>
                                         </td>
-                                        <td style={{ textAlign: 'right', padding: '16px 20px', fontFamily: "'JetBrains Mono', monospace", color: '#10b981', fontWeight: 600 }}>{row.unit}</td>
+                                        <td style={{ textAlign: 'right', padding: '16px 20px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--accent)', fontWeight: 600 }}>{row.unit}</td>
                                         <td style={{ textAlign: 'right', padding: '16px 20px', fontFamily: "'JetBrains Mono', monospace", color: 'var(--text-secondary)' }}>{row.per1k}</td>
                                     </tr>
                                 ))}
@@ -361,7 +361,7 @@ export default function PricingPage() {
                     width: 24px;
                     height: 24px;
                     border-radius: 50%;
-                    background: #10b981;
+                    background: var(--accent);
                     cursor: pointer;
                     border: 3px solid #0a2a1f;
                     box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);
@@ -374,7 +374,7 @@ export default function PricingPage() {
                     width: 24px;
                     height: 24px;
                     border-radius: 50%;
-                    background: #10b981;
+                    background: var(--accent);
                     cursor: pointer;
                     border: 3px solid #0a2a1f;
                     box-shadow: 0 0 12px rgba(16, 185, 129, 0.4);

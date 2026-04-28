@@ -156,7 +156,7 @@ export default function DashboardPage() {
                             { range: '60-80', count: 0 },
                             { range: '80-100', count: 0 },
                         ]).map((bucket, i) => {
-                            const colors = ['var(--color-allow)', '#22d3ee', 'var(--color-challenge)', '#f97316', 'var(--color-deny)'];
+                            const colors = ['var(--green)', 'var(--accent)', 'var(--amber)', '#D97706', 'var(--red)'];
                             const height = maxDistribution > 0 ? (bucket.count / maxDistribution) * 100 : 5;
                             return (
                                 <div

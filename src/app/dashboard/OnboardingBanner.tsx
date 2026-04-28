@@ -64,8 +64,8 @@ export default function OnboardingBanner() {
             <div className="glass-card animate-fade-in" style={{
                 padding: '28px',
                 marginBottom: '32px',
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.10), rgba(168, 85, 247, 0.10))',
-                border: '1px solid rgba(99, 102, 241, 0.25)',
+                background: 'var(--accent-soft)',
+                border: '1px solid var(--accent-line)',
                 position: 'relative',
             }}>
                 <button
@@ -124,17 +124,16 @@ export default function OnboardingBanner() {
     }
 
     if (showCountdown) {
-        const tone = showUrgentExpiring ? 'danger' : 'info';
-        const styles = tone === 'danger'
+        const styles = showUrgentExpiring
             ? {
-                background: 'linear-gradient(135deg, rgba(239,68,68,0.08), rgba(239,68,68,0.02))',
-                border: '1px solid rgba(239,68,68,0.25)',
-                color: 'var(--color-deny)',
+                background: 'var(--red-soft)',
+                border: '1px solid var(--red-line)',
+                color: 'var(--red)',
             }
             : {
-                background: 'var(--bg-secondary)',
-                border: '1px solid var(--border-subtle)',
-                color: 'var(--text-secondary)',
+                background: 'var(--bg-elev)',
+                border: '1px solid var(--line)',
+                color: 'var(--ink-2)',
             };
 
         return (
@@ -149,11 +148,7 @@ export default function OnboardingBanner() {
                     <strong>{trialDaysLeft}</strong> day{trialDaysLeft === 1 ? '' : 's'} left in your free trial.
                     {showUrgentExpiring && ' Subscribe now to avoid losing access.'}
                 </div>
-                <a href="/dashboard/billing" className="btn btn-sm" style={{
-                    background: showUrgentExpiring ? 'var(--color-deny)' : 'var(--text-accent)',
-                    color: 'white',
-                    border: 'none',
-                }}>
+                <a href="/dashboard/billing" className={`btn btn-sm ${showUrgentExpiring ? 'btn-danger' : 'btn-primary'}`}>
                     {showUrgentExpiring ? 'Subscribe now' : 'View plans'}
                 </a>
             </div>
@@ -169,21 +164,22 @@ function OnboardingStep({ n, title, description, href, cta }: {
     return (
         <a href={href} style={{
             display: 'block', padding: '16px',
-            background: 'var(--bg-secondary)', borderRadius: '10px',
-            border: '1px solid var(--border-subtle)',
-            textDecoration: 'none', color: 'var(--text-primary)',
-            transition: 'all 0.2s',
+            background: 'var(--bg-elev)', borderRadius: 'var(--radius-md)',
+            border: '1px solid var(--line)',
+            textDecoration: 'none', color: 'var(--ink)',
+            transition: 'border-color 120ms ease, box-shadow 120ms ease',
         }}>
             <div style={{
-                width: '24px', height: '24px', borderRadius: '50%',
-                background: 'var(--text-accent)', color: 'white',
-                fontSize: '12px', fontWeight: 700,
+                width: '22px', height: '22px', borderRadius: '50%',
+                background: 'var(--ink)', color: '#fff',
+                fontSize: '11px', fontWeight: 600,
+                fontFamily: 'var(--font-mono)',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                marginBottom: '10px',
+                marginBottom: '12px',
             }}>{n}</div>
-            <div style={{ fontSize: '14px', fontWeight: 600, marginBottom: '4px' }}>{title}</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-muted)', marginBottom: '10px' }}>{description}</div>
-            <div style={{ fontSize: '12px', color: 'var(--text-accent)', fontWeight: 600 }}>{cta}</div>
+            <div style={{ fontSize: '14px', fontWeight: 500, marginBottom: '4px', letterSpacing: '-0.01em' }}>{title}</div>
+            <div style={{ fontSize: '12px', color: 'var(--ink-3)', marginBottom: '10px' }}>{description}</div>
+            <div style={{ fontSize: '12px', color: 'var(--accent)', fontWeight: 500 }}>{cta}</div>
         </a>
     );
 }

@@ -10,7 +10,7 @@ const PLANS = [
         name: 'Starter',
         price: '$29/mo',
         priceYearly: '$290/yr',
-        color: '#6366f1',
+        color: 'var(--ink)',
         features: [
             '5,000 users/mo',
             '120 req/min',
@@ -25,7 +25,7 @@ const PLANS = [
         name: 'Pro',
         price: '$99/mo',
         priceYearly: '$990/yr',
-        color: '#8b5cf6',
+        color: 'var(--accent)',
         popular: true,
         features: [
             '50,000 users/mo',
@@ -42,7 +42,7 @@ const PLANS = [
         name: 'Enterprise',
         price: 'Custom',
         priceYearly: 'Custom',
-        color: '#ec4899',
+        color: 'var(--ink)',
         features: [
             'Unlimited users',
             '3,000 req/min',
@@ -126,27 +126,27 @@ function toneStyles(tone: BannerCopy['tone']) {
     switch (tone) {
         case 'success':
             return {
-                background: 'linear-gradient(135deg, rgba(16, 185, 129, 0.06), rgba(16, 185, 129, 0.02))',
-                border: '1px solid rgba(16, 185, 129, 0.2)',
-                badgeColor: 'var(--color-allow)',
+                background: 'var(--green-soft)',
+                border: '1px solid var(--green-line)',
+                badgeColor: 'var(--green)',
             };
         case 'warning':
             return {
-                background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(245, 158, 11, 0.02))',
-                border: '1px solid rgba(245, 158, 11, 0.2)',
-                badgeColor: 'var(--color-challenge)',
+                background: 'var(--amber-soft)',
+                border: '1px solid var(--amber-line)',
+                badgeColor: 'var(--amber)',
             };
         case 'danger':
             return {
-                background: 'linear-gradient(135deg, rgba(239, 68, 68, 0.06), rgba(239, 68, 68, 0.02))',
-                border: '1px solid rgba(239, 68, 68, 0.2)',
-                badgeColor: 'var(--color-deny)',
+                background: 'var(--red-soft)',
+                border: '1px solid var(--red-line)',
+                badgeColor: 'var(--red)',
             };
         case 'info':
             return {
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06))',
-                border: '1px solid rgba(99, 102, 241, 0.15)',
-                badgeColor: 'var(--text-accent)',
+                background: 'var(--accent-soft)',
+                border: '1px solid var(--accent-line)',
+                badgeColor: 'var(--accent-deep)',
             };
     }
 }
@@ -279,26 +279,24 @@ export default function BillingPage() {
             {/* Urgency hero for expired / past_due / canceled */}
             {urgent && (
                 <div className="glass-card animate-fade-in" style={{
-                    padding: '32px',
+                    padding: '28px 32px',
                     marginBottom: '24px',
-                    background: 'linear-gradient(135deg, rgba(239,68,68,0.12), rgba(239,68,68,0.04))',
-                    border: '2px solid rgba(239,68,68,0.4)',
+                    background: 'var(--red-soft)',
+                    border: '1px solid var(--red-line)',
                 }}>
                     <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px', flexWrap: 'wrap' }}>
-                        <div style={{ fontSize: '48px', lineHeight: 1 }}>🚫</div>
                         <div style={{ flex: 1, minWidth: '260px' }}>
-                            <h2 style={{ fontSize: '24px', marginBottom: '8px', color: 'var(--color-deny)' }}>
+                            <h2 style={{ fontSize: '22px', marginBottom: '8px', color: 'var(--red)', fontWeight: 500 }}>
                                 {accessState === 'trial_expired' && 'Your free trial has ended'}
                                 {accessState === 'past_due' && 'Your last payment failed'}
                                 {accessState === 'canceled' && 'Your subscription is canceled'}
                             </h2>
-                            <p style={{ fontSize: '14px', color: 'var(--text-secondary)', marginBottom: '16px', maxWidth: '560px', lineHeight: 1.6 }}>
+                            <p style={{ fontSize: '14px', color: 'var(--ink-2)', marginBottom: '16px', maxWidth: '560px', lineHeight: 1.55 }}>
                                 {accessState === 'trial_expired' && 'Your API key is paused and your dashboard data is read-only. Subscribe to a paid plan below to restore full access immediately.'}
                                 {accessState === 'past_due' && 'We could not charge your card on the last billing cycle. Subscribe again or update your payment method to avoid losing access. Your data is safe.'}
                                 {accessState === 'canceled' && 'Your API key is paused. Subscribe again to restore the same key and continue where you left off — no data is lost.'}
                             </p>
-                            <a href="#plans" className="btn btn-primary"
-                                style={{ background: 'var(--color-deny)', borderColor: 'var(--color-deny)' }}>
+                            <a href="#plans" className="btn btn-primary">
                                 Choose a plan ↓
                             </a>
                         </div>
@@ -311,27 +309,28 @@ export default function BillingPage() {
                 <div className="glass-card animate-fade-in" style={{
                     padding: '24px 28px',
                     marginBottom: '24px',
-                    background: 'linear-gradient(135deg, rgba(245,158,11,0.10), rgba(245,158,11,0.02))',
-                    border: '2px solid rgba(245,158,11,0.4)',
+                    background: 'var(--amber-soft)',
+                    border: '1px solid var(--amber-line)',
                     display: 'flex', alignItems: 'center', gap: '24px', flexWrap: 'wrap',
                 }}>
                     <div style={{
-                        fontSize: '64px', fontWeight: 800,
-                        color: 'var(--color-challenge)', lineHeight: 1,
-                        minWidth: '80px', textAlign: 'center',
+                        fontSize: '56px', fontWeight: 500,
+                        color: 'var(--amber)', lineHeight: 1,
+                        minWidth: '72px', textAlign: 'center',
+                        fontFamily: 'var(--font-mono)',
+                        letterSpacing: '-0.02em',
                     }}>
                         {trialDaysLeft}
                     </div>
                     <div style={{ flex: 1, minWidth: '240px' }}>
-                        <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px' }}>
+                        <div style={{ fontSize: '17px', fontWeight: 500, marginBottom: '4px', letterSpacing: '-0.01em' }}>
                             day{trialDaysLeft === 1 ? '' : 's'} left in your trial
                         </div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+                        <div style={{ fontSize: '13px', color: 'var(--ink-2)', lineHeight: 1.55 }}>
                             Subscribe before your trial ends to keep your API key active without interruption.
                         </div>
                     </div>
-                    <a href="#plans" className="btn btn-primary"
-                        style={{ background: 'var(--color-challenge)', borderColor: 'var(--color-challenge)' }}>
+                    <a href="#plans" className="btn btn-primary">
                         Subscribe →
                     </a>
                 </div>
@@ -448,14 +447,14 @@ export default function BillingPage() {
                                 </div>
                             )}
 
-                            <div style={{ fontSize: '18px', fontWeight: 700, marginBottom: '4px' }}>{plan.name}</div>
-                            <div style={{ fontSize: '28px', fontWeight: 800, color: plan.color, marginBottom: '16px' }}>
+                            <div style={{ fontSize: '17px', fontWeight: 500, marginBottom: '4px', letterSpacing: '-0.01em' }}>{plan.name}</div>
+                            <div style={{ fontSize: '32px', fontWeight: 500, color: 'var(--ink)', marginBottom: '16px', fontFamily: 'var(--font-mono)', letterSpacing: '-0.02em' }}>
                                 {plan.price}
                             </div>
 
                             <ul style={{
                                 margin: '0 0 20px', padding: '0', listStyle: 'none',
-                                fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '2.2',
+                                fontSize: '13px', color: 'var(--ink-2)', lineHeight: '2',
                             }}>
                                 {plan.features.map(f => (
                                     <li key={f} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -466,29 +465,22 @@ export default function BillingPage() {
 
                             {plan.id === 'enterprise' ? (
                                 <a href="mailto:tomascorzo1203@gmail.com"
-                                    className="btn btn-sm"
-                                    style={{
-                                        width: '100%', textAlign: 'center', display: 'block',
-                                        background: 'var(--bg-tertiary)',
-                                        border: `1px solid ${plan.color}40`,
-                                        color: plan.color,
-                                    }}>
+                                    className="btn btn-secondary btn-sm"
+                                    style={{ width: '100%', justifyContent: 'center' }}>
                                     Contact Sales
                                 </a>
                             ) : isCurrent && billing?.subscriptionStatus === 'active' ? (
-                                <button className="btn btn-sm" disabled
-                                    style={{ width: '100%', opacity: 0.5 }}>
+                                <button className="btn btn-secondary btn-sm" disabled
+                                    style={{ width: '100%', justifyContent: 'center', opacity: 0.5 }}>
                                     Current Plan
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => handleCheckout(plan.id)}
                                     disabled={isLoading}
-                                    className="btn btn-primary btn-sm"
+                                    className={`btn btn-sm ${plan.popular ? 'btn-accent' : 'btn-primary'}`}
                                     style={{
-                                        width: '100%', textAlign: 'center',
-                                        background: plan.color,
-                                        borderColor: plan.color,
+                                        width: '100%', justifyContent: 'center',
                                         cursor: isLoading ? 'wait' : 'pointer',
                                     }}>
                                     {isLoading ? 'Redirecting...' : 'Subscribe'}
@@ -502,18 +494,17 @@ export default function BillingPage() {
             {/* How payment activation works */}
             <div className="glass-card" style={{
                 padding: '20px 24px',
-                background: 'linear-gradient(135deg, rgba(99, 102, 241, 0.06), rgba(168, 85, 247, 0.06))',
-                border: '1px solid rgba(99, 102, 241, 0.15)',
+                background: 'var(--bg-sunken)',
+                border: '1px solid var(--line)',
             }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '16px' }}>
-                    <span style={{ fontSize: '28px' }}>⚡</span>
                     <div>
-                        <div style={{ fontSize: '15px', fontWeight: 700, marginBottom: '8px' }}>
+                        <div style={{ fontSize: '11px', fontWeight: 500, marginBottom: '10px', color: 'var(--ink-3)', fontFamily: 'var(--font-mono)', letterSpacing: '0.06em', textTransform: 'uppercase' }}>
                             How activation works
                         </div>
-                        <div style={{ fontSize: '13px', color: 'var(--text-secondary)', lineHeight: '1.7' }}>
-                            <strong>Paid plan:</strong> Click &quot;Subscribe&quot;, complete payment via Creem, and your dashboard + API unlock automatically.<br />
-                            <strong>Free trial:</strong> Submit a request above. We review each one manually so we can be sure of fit. Approval usually takes under 24 hours.
+                        <div style={{ fontSize: '14px', color: 'var(--ink-2)', lineHeight: '1.65' }}>
+                            <strong style={{ color: 'var(--ink)' }}>Paid plan:</strong> Click &quot;Subscribe&quot;, complete payment via Creem, and your dashboard + API unlock automatically.<br />
+                            <strong style={{ color: 'var(--ink)' }}>Free trial:</strong> Submit a request above. We review each one manually so we can be sure of fit. Approval usually takes under 24 hours.
                         </div>
                     </div>
                 </div>

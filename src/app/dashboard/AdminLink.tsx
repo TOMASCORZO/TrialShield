@@ -30,7 +30,7 @@ export default function AdminLink() {
     if (!isAdmin) return null;
 
     return (
-        <a href="/admin/trials" id="nav-admin" style={{ color: '#ec4899' }}>
+        <a href="/admin/trials" id="nav-admin" style={{ color: 'var(--accent-deep)' }}>
             <span>🛡️</span> Admin
         </a>
     );
