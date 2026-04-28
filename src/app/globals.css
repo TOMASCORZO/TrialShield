@@ -1011,3 +1011,136 @@ label {
     .main-content { margin-left: 0; padding: 20px; }
     .stats-grid { grid-template-columns: 1fr 1fr; }
 }
+
+/* ──────────────────────────────────────────────────────────────
+   Marketing design system (from the redesign bundle)
+   Used by: landing, pricing, docs, terms, privacy, login, register
+   ────────────────────────────────────────────────────────────── */
+
+/* Type scale */
+.t-display { font-size: 72px; line-height: 1.02; letter-spacing: -0.04em; font-weight: 500; }
+.t-h1 { font-size: 56px; line-height: 1.04; letter-spacing: -0.035em; font-weight: 500; }
+.t-h2 { font-size: 40px; line-height: 1.08; letter-spacing: -0.03em; font-weight: 500; }
+.t-h3 { font-size: 28px; line-height: 1.15; letter-spacing: -0.02em; font-weight: 500; }
+.t-h4 { font-size: 20px; line-height: 1.3; letter-spacing: -0.01em; font-weight: 500; }
+.t-body-lg { font-size: 18px; line-height: 1.55; color: var(--ink-2); }
+.t-body { font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.t-body-sm { font-size: 13px; line-height: 1.5; color: var(--ink-3); }
+.t-mono { font-family: var(--font-mono); font-feature-settings: "ss01"; font-size: 13px; }
+.t-eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .t-display { font-size: 44px; }
+    .t-h1 { font-size: 36px; }
+    .t-h2 { font-size: 28px; }
+    .t-h3 { font-size: 22px; }
+}
+
+/* Outline + ghost buttons (complement btn-primary, btn-accent) */
+.btn-outline {
+    border-color: var(--line-strong);
+    color: var(--ink);
+    background: var(--bg-elev);
+}
+.btn-outline:hover {
+    border-color: var(--ink);
+    color: var(--ink);
+}
+
+.btn-ghost {
+    color: var(--ink-2);
+    background: transparent;
+    border-color: transparent;
+}
+.btn-ghost:hover {
+    background: var(--bg-sunken);
+    color: var(--ink);
+}
+
+/* Generic .card alias (the design uses both .card and .glass-card) */
+.card {
+    background: var(--bg-elev);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-lg);
+}
+
+/* Tag / pill */
+.tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.02em;
+    border-radius: 999px;
+    background: var(--bg-sunken);
+    color: var(--ink-3);
+    border: 1px solid var(--line);
+    font-weight: 500;
+}
+.tag-accent { background: var(--accent-soft); color: var(--accent-deep); border-color: var(--accent-line); }
+.tag-green { background: var(--green-soft); color: var(--green); border-color: var(--green-line); }
+.tag-amber { background: var(--amber-soft); color: var(--amber); border-color: var(--amber-line); }
+.tag-red { background: var(--red-soft); color: var(--red); border-color: var(--red-line); }
+
+/* Status dots */
+.dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+}
+.dot-green { background: #10B981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18); }
+.dot-amber { background: #F59E0B; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18); }
+.dot-red { background: #EF4444; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18); }
+.dot-blue { background: var(--accent); box-shadow: 0 0 0 3px rgba(22, 82, 240, 0.18); }
+
+/* Hairline grid background (used in hero / final CTA) */
+.grid-bg {
+    background-image:
+        linear-gradient(to right, var(--line) 1px, transparent 1px),
+        linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+    background-size: 56px 56px;
+}
+
+/* Code block (dark) — overrides any prior styling for elements with .code class */
+.code {
+    background: var(--bg-code);
+    color: #E5E7EB;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    line-height: 1.65;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+}
+.code .gutter { color: #4B5563; padding-right: 16px; user-select: none; text-align: right; }
+.code .k { color: #C4B5FD; }
+.code .s { color: #86EFAC; }
+.code .n { color: #FDE68A; }
+.code .c { color: #6B7280; }
+.code .p { color: #93C5FD; }
+.code .f { color: #F0ABFC; }
+
+/* Section dividers + utility */
+.section-divider {
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+}
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { scrollbar-width: none; }
+
+/* Pulse animation for the live event dot */
+@keyframes pulse-dot {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+}
+.pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
+

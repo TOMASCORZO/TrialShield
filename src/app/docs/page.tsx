@@ -1,252 +1,197 @@
+'use client';
+
+import { useState } from 'react';
+import TopNav from '@/components/marketing/TopNav';
+import { SearchIcon, InfoIcon } from '@/components/marketing/Icon';
+
+const NAV_SECTIONS: { title: string; items: string[]; active?: string }[] = [
+    { title: 'Get started', items: ['Introduction', 'Quickstart', 'Concepts', 'Architecture'] },
+    { title: 'SDKs', items: ['Browser', 'Node.js', 'Go', 'Python', 'Ruby'], active: 'Node.js' },
+    { title: 'Guides', items: ['Trial abuse', 'Account linking', 'Bot detection', 'Risk rules', 'Webhooks'] },
+    { title: 'API reference', items: ['Authentication', 'Verify', 'Track', 'Monitor', 'KYC sessions'] },
+];
+
+const TOC = ['Authentication', 'Verify a request', 'Response', 'Error handling', 'Rate limits'];
+
+const RESPONSE_FIELDS: [string, string, string][] = [
+    ['decision', '"ALLOW" | "CHALLENGE" | "DENY"', 'Recommended action based on the risk score and your rules.'],
+    ['risk_score', 'number', '0–100. Higher is riskier. 71+ recommended for block.'],
+    ['signals', 'Signal[]', 'Triggered risk signals with severity and description.'],
+    ['user_id', 'string', 'Stable identifier for this end-user across sessions.'],
+    ['processing_time_ms', 'number', 'Total time spent computing the response.'],
+];
+
 export default function DocsPage() {
+    const [activeTab, setActiveTab] = useState<'Node' | 'Python' | 'curl'>('Node');
+
     return (
-        <div style={{ maxWidth: '900px', margin: '0 auto', padding: '120px 48px 80px' }}>
-            {/* ─── Navigation ──────────────────────────────────── */}
-            <nav className="landing-nav">
-                <a href="/" className="landing-logo">
-                    🛡️ <span>TrialShield</span>
-                </a>
-                <ul className="landing-nav-links">
-                    <li><a href="/#features">Features</a></li>
-                    <li><a href="/docs">Docs</a></li>
-                    <li><a href="/terms">Terms</a></li>
-                    <li><a href="/privacy">Privacy</a></li>
-                    <li><a href="/dashboard" className="btn btn-primary btn-sm">Dashboard →</a></li>
-                </ul>
-            </nav>
+        <div style={{ background: 'var(--bg)', minHeight: '100vh' }}>
+            <TopNav current="docs" />
 
-            <h1 style={{ fontSize: '36px', marginBottom: '16px' }}>
-                <span className="gradient-text">API Documentation</span>
-            </h1>
-            <p style={{ color: 'var(--text-secondary)', marginBottom: '48px', fontSize: '18px' }}>
-                Complete reference for the TrialShield API v1.
-            </p>
-
-            {/* ─── Authentication ──────────────────────────────── */}
-            <section style={{ marginBottom: '48px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>🔑 Authentication</h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                    All API requests require an API key passed via the <code>X-API-Key</code> header
-                    or <code>Authorization: Bearer &lt;key&gt;</code> header.
-                </p>
-                <div className="code-block">
-                    <div className="code-header">
-                        <div className="code-dot red"></div>
-                        <div className="code-dot yellow"></div>
-                        <div className="code-dot green"></div>
-                        <span className="code-title">headers</span>
+            <div style={{ display: 'grid', gridTemplateColumns: '260px 1fr 220px', minHeight: 'calc(100vh - 60px)' }}>
+                {/* Left nav */}
+                <aside style={{ borderRight: '1px solid var(--line)', padding: '28px 20px', background: 'var(--bg)' }}>
+                    <div style={{ position: 'relative', marginBottom: 24 }}>
+                        <input placeholder="Search docs..." style={{ paddingLeft: 32, fontSize: 13 }} />
+                        <span style={{ position: 'absolute', left: 10, top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)', display: 'flex' }}>
+                            <SearchIcon />
+                        </span>
+                        <span className="t-mono" style={{
+                            position: 'absolute', right: 10, top: '50%', transform: 'translateY(-50%)',
+                            fontSize: 10, color: 'var(--ink-4)',
+                            border: '1px solid var(--line)', padding: '1px 5px', borderRadius: 3,
+                        }}>⌘K</span>
                     </div>
-                    <div className="code-body">
-                        <pre>{`X-API-Key: ts_your_api_key_here
-
-// or
-
-Authorization: Bearer ts_your_api_key_here`}</pre>
-                    </div>
-                </div>
-            </section>
-
-            {/* ─── POST /verify ────────────────────────────────── */}
-            <section style={{ marginBottom: '48px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>
-                    <span className="badge badge-allow" style={{ marginRight: '8px' }}>POST</span>
-                    /api/v1/verify
-                </h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                    Main verification endpoint. Evaluates user risk across all 12 modules and returns an
-                    ALLOW/DENY/CHALLENGE decision with a risk score (0-100).
-                </p>
-
-                <h3 style={{ fontSize: '16px', marginBottom: '12px', marginTop: '24px' }}>Request Body</h3>
-                <table className="data-table" style={{ marginBottom: '24px' }}>
-                    <thead>
-                        <tr>
-                            <th>Field</th>
-                            <th>Type</th>
-                            <th>Required</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr><td><code>email</code></td><td>string</td><td>*</td><td>User email address</td></tr>
-                        <tr><td><code>phone</code></td><td>string</td><td>*</td><td>Phone number (E.164 format preferred)</td></tr>
-                        <tr><td><code>ip</code></td><td>string</td><td>*</td><td>User IP address (auto-detected if not provided)</td></tr>
-                        <tr><td><code>deviceFingerprint</code></td><td>object</td><td>No</td><td>Device fingerprint from client SDK</td></tr>
-                        <tr><td><code>sessionId</code></td><td>string</td><td>No</td><td>Session identifier for behavioral tracking</td></tr>
-                        <tr><td><code>metadata</code></td><td>object</td><td>No</td><td>Additional context (mouseEntropy, keystrokePattern, timeOnPage)</td></tr>
-                    </tbody>
-                </table>
-                <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginBottom: '16px' }}>
-                    * At least one of email, phone, or ip is required.
-                </p>
-
-                <h3 style={{ fontSize: '16px', marginBottom: '12px' }}>Response</h3>
-                <div className="code-block">
-                    <div className="code-header">
-                        <div className="code-dot red"></div>
-                        <div className="code-dot yellow"></div>
-                        <div className="code-dot green"></div>
-                        <span className="code-title">200 OK</span>
-                    </div>
-                    <div className="code-body">
-                        <pre>{`{
-  "id": "uuid",
-  "decision": "ALLOW" | "DENY" | "CHALLENGE",
-  "riskScore": 0-100,
-  "signals": [
-    {
-      "module": "EMAIL" | "PHONE" | "IP" | "DEVICE" | "BEHAVIOR" | "GRAPH" | "RULES",
-      "signal": "DISPOSABLE_EMAIL",
-      "severity": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-      "description": "Human-readable explanation",
-      "value": "optional additional data"
-    }
-  ],
-  "breakdown": {
-    "emailScore": 0,
-    "phoneScore": 0,
-    "ipScore": 0,
-    "deviceScore": 0,
-    "behaviorScore": 0,
-    "graphScore": 0,
-    "finalScore": 0,
-    "weights": { ... }
-  },
-  "challenge": {
-    "type": "NONE" | "INVISIBLE_CAPTCHA" | "PHONE_VERIFICATION" | "MANUAL_REVIEW",
-    "tier": "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
-    "actions": ["require_phone_verification", ...]
-  },
-  "enrichment": { ... },
-  "processingTimeMs": 42,
-  "timestamp": "2026-03-11T00:00:00.000Z"
-}`}</pre>
-                    </div>
-                </div>
-            </section>
-
-            {/* ─── Other Endpoints ─────────────────────────────── */}
-            <section style={{ marginBottom: '48px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '24px' }}>Other Endpoints</h2>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                    {[
-                        { method: 'GET', path: '/api/v1/health', desc: 'System health check — module status, external API connectivity' },
-                        { method: 'POST', path: '/api/v1/monitor', desc: 'Post-signup event tracking — usage velocity and anomaly detection' },
-                        { method: 'POST', path: '/api/v1/feedback', desc: 'Report abuse/legitimate confirmation for model improvement' },
-                        { method: 'GET', path: '/api/v1/keys', desc: 'List all API keys' },
-                        { method: 'POST', path: '/api/v1/keys', desc: 'Create new API key' },
-                        { method: 'GET', path: '/api/v1/audit', desc: 'Query audit logs (GDPR compliant)' },
-                        { method: 'GET', path: '/api/v1/stats', desc: 'Dashboard statistics and analytics' },
-                        { method: 'GET', path: '/api/v1/users/:id', desc: 'Export user data (GDPR)' },
-                        { method: 'DELETE', path: '/api/v1/users/:id', desc: 'Delete user data (GDPR right to erasure)' },
-                    ].map((ep) => (
-                        <div key={ep.path + ep.method} className="glass-card" style={{
-                            padding: '16px 20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '16px',
-                        }}>
-                            <span className={`badge ${ep.method === 'GET' ? 'badge-allow' : ep.method === 'DELETE' ? 'badge-deny' : 'badge-challenge'}`}
-                                style={{ minWidth: '70px', justifyContent: 'center' }}>
-                                {ep.method}
-                            </span>
-                            <code style={{ fontSize: '14px', fontWeight: 600, minWidth: '200px' }}>{ep.path}</code>
-                            <span style={{ color: 'var(--text-secondary)', fontSize: '14px' }}>{ep.desc}</span>
+                    {NAV_SECTIONS.map(s => (
+                        <div key={s.title} style={{ marginBottom: 24 }}>
+                            <div className="t-eyebrow" style={{ marginBottom: 8, fontSize: 10 }}>{s.title}</div>
+                            <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                {s.items.map(i => (
+                                    <a key={i} href="#" style={{
+                                        padding: '5px 8px',
+                                        fontSize: 13,
+                                        color: i === s.active ? 'var(--accent)' : 'var(--ink-2)',
+                                        background: i === s.active ? 'var(--accent-soft)' : 'transparent',
+                                        borderRadius: 4,
+                                        fontWeight: i === s.active ? 500 : 400,
+                                        textDecoration: 'none',
+                                    }}>{i}</a>
+                                ))}
+                            </div>
                         </div>
                     ))}
-                </div>
-            </section>
+                </aside>
 
-            {/* ─── Client SDK ──────────────────────────────────── */}
-            <section style={{ marginBottom: '48px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>📦 Client SDK</h2>
-                <p style={{ color: 'var(--text-secondary)', marginBottom: '16px' }}>
-                    Add the TrialShield SDK to your signup page for device fingerprinting and behavioral biometrics.
-                </p>
-                <div className="code-block">
-                    <div className="code-header">
-                        <div className="code-dot red"></div>
-                        <div className="code-dot yellow"></div>
-                        <div className="code-dot green"></div>
-                        <span className="code-title">integration.html</span>
+                {/* Content */}
+                <main style={{ padding: '40px 56px', maxWidth: 800 }}>
+                    <div className="t-body-sm" style={{ marginBottom: 12, display: 'flex', gap: 6 }}>
+                        <span>SDKs</span>
+                        <span style={{ color: 'var(--ink-4)' }}>/</span>
+                        <span style={{ color: 'var(--ink)' }}>Node.js</span>
                     </div>
-                    <div className="code-body">
-                        <pre>{`<!-- Add SDK to your page -->
-<script src="https://your-api.com/sdk/trialshield.js"></script>
+                    <h1 className="t-h2" style={{ margin: '0 0 16px' }}>Node.js SDK</h1>
+                    <p className="t-body-lg" style={{ marginTop: 0, marginBottom: 32 }}>
+                        Verify trial signups on your server before granting access. Real-time risk scoring with full signal attribution.
+                    </p>
 
-<script>
-  // Initialize
-  const ts = new TrialShield({
-    apiKey: 'ts_your_key',
-    apiUrl: 'https://your-api.com'
-  });
-
-  // On signup form submit
-  document.getElementById('signup-form')
-    .addEventListener('submit', async (e) => {
-      e.preventDefault();
-
-      const result = await ts.verify({
-        email: document.getElementById('email').value,
-        phone: document.getElementById('phone').value
-      });
-
-      if (result.decision === 'ALLOW') {
-        // Proceed with signup
-        submitSignup();
-      } else if (result.decision === 'CHALLENGE') {
-        // Show verification step
-        showChallenge(result.challenge);
-      } else {
-        // Block signup
-        showError('Unable to create account.');
-      }
-    });
-</script>`}</pre>
+                    <div style={{
+                        display: 'flex', gap: 16, padding: '14px 18px',
+                        background: 'var(--accent-soft)', border: '1px solid var(--accent-line)',
+                        borderRadius: 8, marginBottom: 32,
+                    }}>
+                        <span style={{ color: 'var(--accent)', flexShrink: 0, marginTop: 2, display: 'flex' }}>
+                            <InfoIcon />
+                        </span>
+                        <div style={{ fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.55 }}>
+                            <strong style={{ color: 'var(--ink)' }}>Server-side only.</strong> Your <code className="t-mono" style={{ background: 'rgba(255,255,255,0.6)', padding: '1px 5px', borderRadius: 3 }}>X-API-Key</code> must never reach the browser. Make verification calls from your server before letting trials start.
+                        </div>
                     </div>
-                </div>
-            </section>
 
-            {/* ─── Signals Reference ───────────────────────────── */}
-            <section style={{ marginBottom: '48px' }}>
-                <h2 style={{ fontSize: '24px', marginBottom: '16px' }}>🚨 Signal Reference</h2>
-                <table className="data-table">
-                    <thead>
-                        <tr>
-                            <th>Signal</th>
-                            <th>Module</th>
-                            <th>Severity</th>
-                            <th>Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {[
-                            ['DISPOSABLE_EMAIL', 'EMAIL', 'CRITICAL', 'Temporary/disposable email domain detected'],
-                            ['NO_MX_RECORDS', 'EMAIL', 'HIGH', 'Domain has no mail server records'],
-                            ['BREACHED_EMAIL', 'EMAIL', 'HIGH', 'Email found in data breaches (HIBP)'],
-                            ['VOIP_NUMBER', 'PHONE', 'HIGH', 'Virtual/VOIP phone number detected'],
-                            ['VPN_DETECTED', 'IP', 'HIGH', 'VPN or proxy server detected'],
-                            ['TOR_EXIT_NODE', 'IP', 'CRITICAL', 'TOR exit node IP address'],
-                            ['HEADLESS_BROWSER', 'DEVICE', 'CRITICAL', 'Automated/headless browser detected'],
-                            ['MULTI_ACCOUNT_DEVICE', 'DEVICE', 'HIGH', 'Same device used for multiple accounts'],
-                            ['HIGH_SIGNUP_VELOCITY_IP', 'BEHAVIOR', 'HIGH', 'Too many signups from same IP'],
-                            ['COORDINATED_ATTACK', 'GRAPH', 'CRITICAL', 'Multiple signals suggest organized abuse'],
-                        ].map(([signal, mod, sev, desc]) => (
-                            <tr key={signal}>
-                                <td><code style={{ fontSize: '12px' }}>{signal}</code></td>
-                                <td><span className="signal-tag medium">{mod}</span></td>
-                                <td><span className={`badge badge-${sev === 'CRITICAL' || sev === 'HIGH' ? 'deny' : 'challenge'}`}>{sev}</span></td>
-                                <td style={{ color: 'var(--text-secondary)', fontSize: '13px' }}>{desc}</td>
-                            </tr>
+                    <h2 id="authentication" className="t-h3" style={{ margin: '0 0 12px' }}>Authentication</h2>
+                    <p className="t-body" style={{ marginTop: 0, marginBottom: 16 }}>
+                        All requests require an API key. Get one from your <a href="/dashboard/settings" style={{ color: 'var(--accent)' }}>dashboard</a> after activating a plan or trial.
+                    </p>
+                    <div className="code" style={{ padding: '16px 20px', marginBottom: 32 }}>
+                        <span style={{ color: '#6B7280' }}>$</span> curl https://trialshield.cc/api/v1/verify {`\\`}<br />
+                        {'  '}-H <span style={{ color: '#86EFAC' }}>{'"X-API-Key: ts_your_key"'}</span>
+                    </div>
+
+                    <h2 id="verify" className="t-h3" style={{ margin: '0 0 12px' }}>Verify a request</h2>
+                    <p className="t-body" style={{ marginTop: 0, marginBottom: 20 }}>
+                        Submit user identifiers and context, get back a 0–100 risk score, an array of triggered signals, and a recommendation.
+                    </p>
+
+                    <div className="code" style={{ marginBottom: 32 }}>
+                        <div style={{ display: 'flex', borderBottom: '1px solid #1F2937', padding: '0 8px' }}>
+                            {(['Node', 'Python', 'curl'] as const).map(l => (
+                                <button
+                                    key={l}
+                                    onClick={() => setActiveTab(l)}
+                                    style={{
+                                        padding: '10px 14px',
+                                        background: 'transparent', border: 'none',
+                                        color: activeTab === l ? '#fff' : '#6B7280',
+                                        borderBottom: '1px solid ' + (activeTab === l ? 'var(--accent)' : 'transparent'),
+                                        fontFamily: 'var(--font-mono)', fontSize: 12, cursor: 'pointer',
+                                    }}
+                                >{l}</button>
+                            ))}
+                        </div>
+                        <pre style={{ margin: 0, padding: '20px 24px', fontSize: 13, lineHeight: 1.65, fontFamily: 'var(--font-mono)' }}>
+                            {activeTab === 'Node' && (
+                                <>
+                                    <span className="k">const</span>{' res = '}<span className="k">await</span>{' '}<span className="f">fetch</span>{'('}<span className="s">{'"https://trialshield.cc/api/v1/verify"'}</span>{`, {\n`}
+                                    {'  method: '}<span className="s">{'"POST"'}</span>{`,\n`}
+                                    {`  headers: {\n`}
+                                    {'    '}<span className="s">{'"X-API-Key"'}</span>{': process.env.'}<span className="p">TS_KEY</span>{`,\n`}
+                                    {'    '}<span className="s">{'"Content-Type"'}</span>{': '}<span className="s">{'"application/json"'}</span>{`,\n`}
+                                    {`  },\n`}
+                                    {'  body: '}<span className="f">JSON.stringify</span>{`({\n`}
+                                    {'    email: '}<span className="s">{'"user@example.com"'}</span>{`,\n`}
+                                    {'    ip:    req.ip,\n'}
+                                    {'    user_agent: req.headers['}<span className="s">{'"user-agent"'}</span>{'],\n'}
+                                    {'  }),\n'}
+                                    {'});\n'}
+                                    <span className="k">const</span>{' result = '}<span className="k">await</span>{' res.'}<span className="f">json</span>{'();'}
+                                </>
+                            )}
+                            {activeTab === 'Python' && (
+                                <>
+                                    <span className="k">import</span>{' requests, os'}{`\n\n`}
+                                    {'r = requests.'}<span className="f">post</span>{`(\n`}
+                                    {'  '}<span className="s">{'"https://trialshield.cc/api/v1/verify"'}</span>{`,\n`}
+                                    {'  headers={'}<span className="s">{'"X-API-Key"'}</span>{': os.environ['}<span className="s">{'"TS_KEY"'}</span>{']},\n'}
+                                    {'  json={'}<span className="s">{'"email"'}</span>{': '}<span className="s">{'"user@example.com"'}</span>{', '}<span className="s">{'"ip"'}</span>{': request.remote_addr},\n'}
+                                    {')\n'}
+                                    {'result = r.'}<span className="f">json</span>{'()'}
+                                </>
+                            )}
+                            {activeTab === 'curl' && (
+                                <>
+                                    {'curl -X POST '}<span className="s">{'"https://trialshield.cc/api/v1/verify"'}</span>{` \\\n`}
+                                    {'  -H '}<span className="s">{'"X-API-Key: $TS_KEY"'}</span>{` \\\n`}
+                                    {'  -H '}<span className="s">{'"Content-Type: application/json"'}</span>{` \\\n`}
+                                    {'  -d '}<span className="s">{'\'{"email":"user@example.com","ip":"1.2.3.4"}\''}</span>
+                                </>
+                            )}
+                        </pre>
+                    </div>
+
+                    <h2 id="response" className="t-h3" style={{ margin: '0 0 12px' }}>Response</h2>
+                    <div className="card" style={{ overflow: 'hidden', marginBottom: 32 }}>
+                        {RESPONSE_FIELDS.map(([k, t, d], i) => (
+                            <div key={k} style={{
+                                display: 'grid', gridTemplateColumns: '160px 220px 1fr',
+                                padding: '12px 18px', gap: 16, alignItems: 'baseline',
+                                borderBottom: i < RESPONSE_FIELDS.length - 1 ? '1px solid var(--line)' : 'none',
+                                fontSize: 13,
+                            }}>
+                                <code className="t-mono" style={{ color: 'var(--accent)', fontSize: 12 }}>{k}</code>
+                                <code className="t-mono" style={{ color: 'var(--ink-3)', fontSize: 11 }}>{t}</code>
+                                <span style={{ color: 'var(--ink-2)' }}>{d}</span>
+                            </div>
                         ))}
-                    </tbody>
-                </table>
-            </section>
+                    </div>
 
-            <footer className="footer" style={{ borderTop: 'none', paddingTop: '0' }}>
-                <p>🛡️ <strong>TrialShield</strong> API v1.0.0</p>
-            </footer>
+                    <h2 id="rate-limits" className="t-h3" style={{ margin: '0 0 12px' }}>Rate limits</h2>
+                    <p className="t-body" style={{ marginTop: 0, marginBottom: 16 }}>
+                        Default rate limit is 60 requests/minute per API key. Pro plans get 600/min, Enterprise gets 3,000/min. Exceeded requests return <code className="t-mono" style={{ background: 'var(--bg-sunken)', padding: '1px 5px', borderRadius: 3 }}>429 Too Many Requests</code>.
+                    </p>
+                </main>
+
+                {/* Right TOC */}
+                <aside style={{ borderLeft: '1px solid var(--line)', padding: '40px 24px', background: 'var(--bg)' }}>
+                    <div className="t-eyebrow" style={{ marginBottom: 12, fontSize: 10 }}>On this page</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 6, fontSize: 12 }}>
+                        {TOC.map((i, idx) => (
+                            <a key={i} href={`#${i.toLowerCase().replace(/\s+/g, '-')}`} style={{
+                                color: idx === 0 ? 'var(--accent)' : 'var(--ink-3)',
+                                textDecoration: 'none',
+                            }}>{i}</a>
+                        ))}
+                    </div>
+                </aside>
+            </div>
         </div>
     );
 }
