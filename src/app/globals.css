@@ -1144,29 +1144,28 @@ label {
 }
 .pulse-dot { animation: pulse-dot 1.5s ease-in-out infinite; }
 
-/* Range slider thumb (used by pricing volume slider) */
+/* The pricing range input is rendered invisible on top of a custom-painted
+   track + thumb (see /pricing). Hide native chrome cross-browser. */
+input[type="range"]::-webkit-slider-runnable-track {
+    background: transparent;
+    border: none;
+}
 input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--bg-elev);
-    border: 1.5px solid var(--accent);
-    box-shadow: 0 1px 2px rgba(10, 14, 26, 0.12);
-    cursor: pointer;
-    transition: transform 120ms ease;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
 }
-input[type="range"]::-webkit-slider-thumb:hover {
-    transform: scale(1.1);
+input[type="range"]::-moz-range-track {
+    background: transparent;
+    border: none;
 }
 input[type="range"]::-moz-range-thumb {
-    width: 18px;
-    height: 18px;
-    border-radius: 50%;
-    background: var(--bg-elev);
-    border: 1.5px solid var(--accent);
-    box-shadow: 0 1px 2px rgba(10, 14, 26, 0.12);
-    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    background: transparent;
+    border: none;
 }
 
